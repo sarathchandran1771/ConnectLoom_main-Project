@@ -1,0 +1,130 @@
+.componentProfileEdit{
+    display: flex;
+    margin-left: 25%;
+    margin-right: 3%;
+    margin-top: 3%;
+    background-color: black;
+
+}
+
+.usernameGrid{
+    height: 285px;
+    background-color: rgb(0, 0, 0);
+    color: rgb(236, 164, 164);
+    text-align: center;
+}
+
+.usernameGridItem{
+    background-color: rgb(204, 231, 106);
+    color: rgb(236, 164, 164);
+}
+.usernameItem{
+    display: flex;
+    color: rgb(58, 53, 46);
+    justify-content: start;
+    margin-bottom: 8px;
+    margin-top: 0px;
+    height: 52px;
+    width: 440px
+}
+
+.ListItems{
+    color: black;
+    font-weight: 200;
+    font-size: large;
+}
+
+.InputItemsOfProfile{
+    width: 100%;
+    text-align: end;
+    color: rgb(0, 0, 0);
+    font-weight: 600;
+    font-size: medium;
+    border: none;
+
+}
+
+.InputItemsOfProfileData{
+    width: 100%;
+    height: auto;
+    color: black;
+    font-weight: 400;
+    margin-right: 15px;
+    text-align: center;
+    border: none;
+    outline: none;  
+}
+.ListItemsProfileData{
+    display: grid;
+    color: black;
+    font-size: larger;
+    font-weight: 600;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    height: 45px; 
+}
+textarea.InputTextAreaProfileBio{
+    padding: 0;
+    margin: 0;
+}
+.InputTextAreaProfileBio{
+    width: 100%;
+    height: 150px;
+    color: black;
+    font-weight: 400;
+    margin-right: 1px;
+    border: none;
+    outline: none; 
+     
+}
+
+.InputTextAreaProfileBio {
+    width: 100%;
+    height: 150px;
+  }
+
+  
+.ListItemsProfileBio{
+    display: grid;
+    color: black;
+    font-size: larger;
+    font-weight: 600;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    height: 150px;
+    width: 440px;
+}
+
+.ItemsProfileData{
+    display: grid;
+    color: black;
+    font-size: larger;
+    font-weight: 600;
+    margin-bottom: 5px;
+    margin-top: 15px;
+    height: 45px; 
+    width: 440px;
+}
+
+.ListProfileDataGender{
+    display: grid;
+    color: black;
+    font-size: larger;
+    font-weight: 600;
+    margin-bottom: 5px;
+    margin-top: 120px;
+    height: 45px; 
+}
+
+
+.saveChangesButton {
+    background-color: #2279c0; 
+    color: white;
+    padding: 15px 25px;
+    margin-left: 85vh;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    align-items: flex-end;
+  }
+  

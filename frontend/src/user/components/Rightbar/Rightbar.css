@@ -1,0 +1,15 @@
+
+.mainRightbar{
+    background-color: black;
+    height: 100vh;
+    overflow: auto; 
+
+}
+
+p{
+    color: white;
+}
+
+.subMainRightBar{
+    display: flex;
+}

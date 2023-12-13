@@ -1,0 +1,31 @@
+.verification-container {
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  .status-icon {
+    font-size: 3em;
+    margin-top: 20px;
+  }
+  
+  .success-icon {
+    color: green;
+  }
+  
+  .failure-icon {
+    color: red;
+  }
+  
+  .status-message {
+    font-size: 1.5em;
+    margin-top: 10px;
+  }
+  
+  .success-message {
+    color: green;
+  }
+  
+  .failure-message {
+    color: red;
+  }
+  

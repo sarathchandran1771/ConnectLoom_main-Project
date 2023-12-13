@@ -1,0 +1,39 @@
+.LogoPostIcons{
+    margin: 10px;
+}
+
+.modalForAPost{
+    width: 60%;
+    height: 90vh;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    padding: 20px;
+    border: none;
+    background-color: #181818;
+    margin-top: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+
+}
+.modalForAPost{
+    background-color: rgb(225, 225, 225/93%);
+}
+
+.scrollable-div{
+    height: 70vh;
+    overflow: auto;
+}
+
+.scrollable-div::-webkit-scrollbar{
+    width: 0.5em;
+    background-color: transparent;
+}
+.scrollable-div::-webkit-scrollbar-thumb{
+    background-color: transparent;
+}
+
+.MoreText{
+    padding-Top:5;
+     padding-Bottom:5
+}

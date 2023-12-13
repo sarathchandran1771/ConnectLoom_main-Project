@@ -1,0 +1,62 @@
+// src/user/app.js
+import React, { useEffect } from 'react';
+import { Route, Routes, Navigate, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import Home from './pages/Home/Home';
+import Login from './pages/Login/Login';
+import Signup from './pages/Signup/Signup';
+import Explore from './pages/Explore/Explore';
+import Profile from './pages/Profile/Profile';
+import { setUserCredentials, setUserLoading, setUserError } from './redux/slices/userSlice';
+import { apiCall } from './utils/api/api'; 
+
+function UserRoutes() {
+  const dispatch = useDispatch();
+  const userCredentials = useSelector((state) => state.user);
+  const loading = useSelector((state) => state.user.loading);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!userCredentials) {
+        navigate('/');
+      } else {
+        try {
+          dispatch(setUserLoading());
+  
+          const data = await apiCall(userCredentials);
+          console.log('apiCall data:', data);
+  
+          const apiCredentials = data.requestBody.credentials;
+  
+          console.log('apiCall found:', apiCredentials);
+          dispatch(setUserCredentials(apiCredentials)); 
+  
+        } catch (error) {
+          // Handle errors appropriately
+          console.log('apiCall error:');
+          dispatch(setUserError(error.message));
+        } finally {
+          // Set loading to false after data fetching is complete
+          console.log('apiCall found: finally finally');
+          dispatch(setUserLoading(false));
+        }
+      }
+    };
+
+    fetchData();
+  }, [dispatch, userCredentials, navigate]);
+
+
+  return (
+    <Routes>
+      <Route path="/" element={<Login />} />
+      <Route path="/home" element={<Home />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/explore" element={<Explore />} />
+      <Route path="/profile" element={<Profile />} />
+    </Routes>
+  );
+} 
+
+export default UserRoutes;

@@ -1,0 +1,47 @@
+.mainSignupPage{
+    background-color: #ffffff;
+    display: flex;
+    margin: auto;
+    justify-content: center;
+}
+
+.signupRight{
+    border: 1px solid rgb(186, 184, 184);
+    height: 600px;
+    width: 350px;
+    margin-top: 4.6%;
+    margin-left: 30px;
+}
+.rightBottomSection{
+    border: 1px solid rgb(186, 184, 184);
+    height: 60px;
+    width: 350px;
+    margin-left: 30px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.instagramLogo{
+    width:200px;
+    margin-left: 90px;
+    margin-top: 19px;
+}
+
+.inputSignUpPage{
+    width: 85%;
+    height: 1vh;
+    padding: 13px;
+    margin-top:10px;
+}
+.LoginButton{
+    width: 89%;
+    margin-left: 20px;
+    margin-top: 20px;
+    background-color: #4cb5f9;
+    color: #ffffff;
+    border: none;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 6px;
+}

@@ -1,0 +1,75 @@
+.mainSidebar{
+    background-color: black;
+    height: 100vh;
+    overflow: hidden;
+    position: fixed;
+    width: 24%;
+    display: flex;
+}
+
+.listText{
+    color: white;
+    list-style: none;
+    
+}
+
+.MoreText{
+    color: rgb(0, 0, 0);
+    list-style: none;
+    margin-top: 3px;
+    text-align:'center';
+}
+
+.profileIcon{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: contain;
+}
+
+.moreIcon{
+    margin-top: 200px;
+    cursor: pointer;
+}
+
+.textInputForPost{
+    width:100%;
+    height:150px; 
+    background-color:black;
+    color:white;
+    font-size:18;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.textInputForPost::placeholder{
+    color:white;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    border: none;
+    font-size: 14px;
+}
+
+.createPost{
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-top: 5px;
+    padding-bottom:5px;
+    background-color: #0095F6;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.showSearchInput{
+    background-color:#484747;
+    border:none;
+    width:90%;
+    height:25px; 
+    margin-left:0px;
+    outline: none;
+    color:white;
+    border-radius: 7px;
+}
+.showSearchInput::placeholder{
+    color:white
+}

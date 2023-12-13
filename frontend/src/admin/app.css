@@ -1,0 +1,25 @@
+.app {
+    display: flex;
+    height: 100vh;
+  }
+  
+  .sidebar-wrapper {
+    width: 250px; 
+    background-color: #141b2d; 
+    color: #fff; 
+    height: 100vh;
+
+  }
+  
+  .main-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .content {
+    flex: 1;
+    overflow: auto;
+  }
+  
+  

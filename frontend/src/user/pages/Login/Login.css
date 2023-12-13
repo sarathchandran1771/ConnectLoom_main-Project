@@ -1,0 +1,58 @@
+.mainLoginPage{
+    background-color: #ffffff;
+    display: flex;
+}
+
+.left{
+    height: 700px;
+    width: 430px;
+    background-image: url("https://static.cdninstagram.com/images/instagram/xig/homepage/phones/home-phones.png?__makehaste_cache_breaker=HOgRclNOosk");
+    background-repeat: no-repeat;
+    margin-left: 28%;
+    margin-top: 4%;
+}
+
+
+.right{
+    border: 1px solid rgb(186, 184, 184);
+    height: 444px;
+    width: 350px;
+    margin-top: 4.6%;
+    margin-left: 30px;
+}
+.rightBottomSection{
+    border: 1px solid rgb(186, 184, 184);
+    height: 60px;
+    width: 350px;
+    margin-left: 30px;
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+}
+
+.instagramLogo{
+    width:200px;
+    margin-left: 90px;
+    margin-top: 19px;
+}
+
+.inputLoginPage{
+    width: 87%;
+    height: 1vh;
+    padding: 13px;
+    margin-top:10px;
+    cursor: pointer;
+}
+.LoginButton{
+    width: 89%;
+    margin-left: 20px;
+    margin-top: 20px;
+    background-color: #4cb5f9;
+    color: #ffffff;
+    border: none;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+
+}
