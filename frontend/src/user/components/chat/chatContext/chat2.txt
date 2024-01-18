@@ -1,0 +1,453 @@
+import React, { useState, useEffect } from "react";
+import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
+import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
+import SendIcon from "@mui/icons-material/Send";
+import {
+  useGetChatUsersMutation,
+  useAddMessageMutation,
+  useGetAllMessageMutation,
+  useCreateChatRoomMutation,
+} from "../../../Shared/redux/userSlices/userSlice";
+import { useSelector } from "react-redux";
+import Default_profileIcon from "../../Icons/Default_ProfilePic.jpg";
+import EmojiPicker from "emoji-picker-react";
+import "./chat.css";
+import io from "socket.io-client";
+
+const ENDPOINT = "http://localhost:5000";
+var socket, selectedChatCompare;
+
+const ChatMessage = () => {
+  const { userInfo } = useSelector((state) => state.auth);
+  const [typedMessage, setTypedMessage] = useState("");
+  const [chatUsers] = useGetChatUsersMutation();
+  const [chatContent] = useAddMessageMutation();
+  const [getChatContent] = useGetAllMessageMutation();
+  const [createRoom] = useCreateChatRoomMutation();
+  const [messages, setMessages] = useState([]);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [createdRoomId, setCreateRoomId] = useState(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [selectedEmoji, setSelectedEmoji] = useState(null);
+  const [chatUsersData, setChatUsersData] = useState([]);
+  const [socketConnected, setSocketConnected] = useState(false);
+  const userId = userInfo?._id;
+
+  useEffect(() => {
+    socket = io(ENDPOINT);
+    socket.emit("setup", userInfo);
+    socket.on("connection", () => setSocketConnected(true));
+  }, []);
+
+  //workspace
+
+  const generateChatRoomId = async (toUser) => {
+    try {
+      const response = await createRoom({
+        fromUserId: userId,
+        toUserId: toUser,
+      });
+      if (response.data && response.data.chatRoom) {
+        setCreateRoomId(response.data.chatRoom._id);
+      } else {
+        console.error("Invalid response format");
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const fetchChatData = async () => {
+    try {
+      if (userId) {
+        // Fetch chat users
+        const usersResponse = await chatUsers({ userId });
+        setChatUsersData(usersResponse.data.users);
+      }
+    } catch (error) {
+      console.error("Error fetching chat data:", error);
+    }
+  };
+
+  const fetchMessages = async () => {
+    if (!createdRoomId) return;
+    try {
+      // Fetch chat content
+      const getChatResponse = await getChatContent({
+        fromUserId: userId,
+        toUserId: selectedUserId,
+      });
+      setMessages(getChatResponse.data);
+      socket.emit("join chat", createdRoomId);
+    } catch (error) {
+      console.error("Error fetching chat data:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchChatData();
+    fetchMessages();
+    setTypedMessage("");
+    setSelectedEmoji(null);
+    selectedChatCompare = createdRoomId;
+  }, [createdRoomId]);
+
+  useEffect(() => {
+    socket.on("message received", (newMessageReceived) => {
+      if (
+        !selectedChatCompare ||
+        selectedChatCompare !== newMessageReceived.chatRoom._id
+      ) {
+        // give notification
+        // console.log("after give notification:",newMessageReceived);
+      } else {
+        const standardizedMessage = {
+          createdAt: newMessageReceived.messageData.createdAt,
+          fromSelf: newMessageReceived.messageData.sender,
+          message: newMessageReceived.messageData.content.text,
+          chatRoom: newMessageReceived.messageData.chatRoom,
+        };
+        // console.log("standardizedMessage:", standardizedMessage);
+
+        // Update state with all messages
+        setMessages((prevMessages) => [...prevMessages, standardizedMessage]);
+      }
+    });
+  }, [selectedUserId, createdRoomId]);
+  console.log('message',messages)
+
+  // Click handler to set the selected user ID
+  const handleUserClick = (userId) => {
+    setSelectedUserId(userId);
+    generateChatRoomId(userId);
+  };
+
+  const handleSendMessage = async () => {
+    if (typedMessage.trim() !== "") {
+      try {
+        const data = {
+          fromUserId: userId,
+          toUserId: selectedUserId,
+          message: typedMessage || selectedEmoji,
+        };
+        setTypedMessage("");
+
+        const response = await chatContent(data).unwrap();
+        if (response) {
+          // Emit the message to the socket
+          socket.emit("new message", response);
+        } else {
+          console.error("Failed to get sender information from the response");
+        }
+        // setMessages([...messages,response.data])
+        setSelectedEmoji(null);
+      } catch (error) {
+        console.error("Error sending message:", error);
+        // Handle other errors if needed
+      }
+    }
+  };
+
+  const markedId = chatUsersData.find((user) => user._id === selectedUserId);
+  const allMessages = [...messages];
+  const userMessages = allMessages.filter(
+    (message) => message.fromSelf === userId
+  );
+  const otherPersonMessages = allMessages.filter(
+    (message) => message.fromSelf !== userId
+  );
+
+  const handleEmojiIconClick = () => {
+    setShowEmojiPicker(!showEmojiPicker);
+  };
+  const combinedMessages = [...userMessages, ...otherPersonMessages].sort(
+    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+  );
+
+  return (
+    <div className="mainChatRightbar">
+      <div className="subMainChatRightBar">
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            border: "1px solid #8a8a8a",
+            height: "99.9vh",
+          }}
+        >
+          <div
+            style={{
+              border: "1px solid #8a8a8a",
+              height: "99.8vh",
+              width: "20%",
+            }}
+          >
+            <div className="profileContainer">
+              <div className="usernameContainer">
+                <p className="username">{userInfo.username}</p>
+              </div>
+              <div className="iconContainer">
+                <RateReviewOutlinedIcon color="primary" />
+              </div>
+            </div>
+
+            <div style={{ borderTop: "1px solid #8a8a8a", height: "88vh" }}>
+              {chatUsersData.map((user) => (
+                <div
+                  key={user?._id}
+                  className="userContainer"
+                  onClick={() => handleUserClick(user?._id)}
+                >
+                  <div className="profileImageContainer">
+                    <img
+                      className="profileImage"
+                      src={user?.profilePic || Default_profileIcon}
+                      alt=""
+                    />
+                  </div>
+                  <div className="userInfoContainer">
+                    <p className="username">{user?.username}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {createdRoomId ? (
+            <>
+              <div
+                className="messageContainer"
+                style={{
+                  position: "relative",
+                  height: "99.5vh",
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "56.7%",
+                }}
+              >
+                <div
+                  className="chatHeader"
+                  style={{
+                    width: "56.6%",
+                    height: 93,
+                    position: "fixed",
+                    top: 0,
+                    border: "1px solid white",
+                    backgroundColor: "black",
+                    display: "flex",
+                    zIndex: 1000,
+                  }}
+                >
+                  <div style={{ paddingLeft: "10px", marginTop: 10 }}>
+                    <img
+                      style={{
+                        height: "80px",
+                        width: "80px",
+                        borderRadius: "50%",
+                      }}
+                      src={markedId?.profilePic || Default_profileIcon}
+                      alt=""
+                    />
+                  </div>
+                  <div
+                    style={{
+                      paddingLeft: "10px",
+                      marginTop: 15,
+                      justifyContent: "center",
+                    }}
+                  >
+                    <p>{markedId.username}</p>
+                  </div>
+                </div>
+
+                <div
+                  className="messageHistory"
+                  style={{
+                    flex: 1,
+                    overflowY: "auto",
+                    position: "fixed",
+                    overflow: "auto",
+                    padding: "10px 10px 60px",
+                    display: "flex",
+                    top: 93,
+                    bottom: 55,
+                    width: "55.5%",
+
+                    flexDirection: "column-reverse",
+                  }}
+                >
+                  {showEmojiPicker && (
+                    <EmojiPicker
+                      onEmojiClick={(event, emojiObject) => {
+                        // Handle emoji selection
+                        setSelectedEmoji(event);
+                      }}
+                    />
+                  )}
+                  {combinedMessages.map((message, index) => (
+                    <div key={index} style={{ display: "flex" }}>
+                      {message.fromSelf ? (
+                        <>
+                          <p
+                            style={{
+                              flex: 1,
+                              textAlign: "right",
+                              marginLeft: "auto",
+                              maxWidth: "30%",
+                              border: "none",
+                              borderRadius: 25,
+                              backgroundColor: "#3797F0",
+                              paddingRight: 6,
+                              paddingLeft: 8,
+                              padding: 8,
+                              fontSize: 16,
+                            }}
+                          >
+                            {message.message}
+                          </p>
+                          <div>
+                            <img
+                              style={{
+                                height: "20px",
+                                width: "20px",
+                                borderRadius: "50%",
+                                marginTop: 25,
+                                marginLeft: 5,
+                              }}
+                              src={userInfo?.profilePic || Default_profileIcon}
+                              alt=""
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div>
+                            <img
+                              style={{
+                                height: "20px",
+                                width: "20px",
+                                borderRadius: "50%",
+                                marginTop: 25,
+                                marginRight: 5,
+                              }}
+                              src={markedId?.profilePic || Default_profileIcon}
+                              alt=""
+                            />
+                          </div>
+                          <p
+                            style={{
+                              flex: 1,
+                              textAlign: "left",
+                              marginLeft: "none",
+                              maxWidth: "30%",
+                              border: "none",
+                              backgroundColor: "#262626",
+                              borderRadius: 25,
+                              paddingRight: 6,
+                              paddingLeft: 8,
+                              padding: 8,
+                              fontSize: 16,
+                            }}
+                          >
+                            {message.message}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div
+                  className="messageInput"
+                  style={{
+                    position: "fixed",
+                    bottom: 0,
+                    width: "55%",
+                    padding: 10,
+                    zIndex: 1000,
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      borderRadius: 8,
+                      justifyContent: "end",
+                      border: "1px solid white",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "relative",
+                        display: "flex",
+                        width: "100%",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "relative",
+                          left: "5px",
+                          top: "70%",
+                          marginRight: 5,
+                          transform: "translateY(-50%)",
+                        }}
+                      >
+                        <InsertEmoticonIcon
+                          color="warning"
+                          onClick={handleEmojiIconClick}
+                        />
+                      </div>
+
+                      <input
+                        type="text"
+                        placeholder=" message..."
+                        style={{
+                          boxSizing: "border-box",
+                          width: "100%",
+                          height: "5vh",
+                          padding: 5,
+                          borderRadius: 8,
+                          marginLeft: 15,
+                          outline: "none",
+                        }}
+                        value={
+                          selectedEmoji
+                            ? `${typedMessage} ${selectedEmoji.emoji}`
+                            : typedMessage
+                        }
+                        onChange={(e) => setTypedMessage(e.target.value)}
+                      />
+
+                      <div
+                        style={{
+                          position: "absolute",
+                          right: "5px",
+                          top: "50%",
+                          transform: "translateY(-50%)",
+                        }}
+                      >
+                        <SendIcon color="primary" onClick={handleSendMessage} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <p
+              style={{
+                textAlign: "center",
+                width: "60%",
+                marginTop: 400,
+                fontSize: 26,
+              }}
+            >
+              Select a friend for your messages
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ChatMessage;

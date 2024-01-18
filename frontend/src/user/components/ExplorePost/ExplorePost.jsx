@@ -33,6 +33,7 @@ export default function ExplorePost({ item }) {
   const [open, setOpen] = useState(false);
   const [postIdToDelete, setPostIdToDelete] = useState([]);
 
+  console.log("item",item)
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const theme = useTheme();
@@ -179,7 +180,7 @@ export default function ExplorePost({ item }) {
             </div>
           </div>
 
-          <Modal
+          {/* <Modal
             style={{ overlay: { backgroundColor: "#2e2b2bc" } }}
             isOpen={modalIsOpen}
             onRequestClose={() => setModalIsOpen(false)}
@@ -254,6 +255,7 @@ export default function ExplorePost({ item }) {
                     <div>
                       <img src={MoreOptions} onClick={handleOpen} alt="" />
                       <MaterialModal
+                      open={deleteConfirmationOpen}
                         onClose={handleClose}
                         aria-labelledby="modal-modal-title"
                         aria-describedby="modal-modal-description"
@@ -452,8 +454,8 @@ export default function ExplorePost({ item }) {
                 </div>
               </div>
             </div>
-          </Modal>
-          <Popover
+          </Modal> */}
+      <Popover
       open={open}
       anchorEl={anchorEl}
       onClose={''}

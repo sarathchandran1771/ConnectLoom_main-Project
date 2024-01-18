@@ -25,74 +25,112 @@
     margin-bottom: 8px;
     margin-top: 0px;
     height: 52px;
-    width: 440px
+    width: 440px;
+    background-color: #2d3033;
+    align-items: center; 
+    padding-left: 6px;
+    border-radius: 8px;
+    transition: box-shadow 0.3s ease-in-out; 
 }
-
+.usernameItem:hover {
+    box-shadow: 0 4px 8px rgba(253, 253, 253, 0.507), 0 8px 16px rgba(0, 0, 0, 0.1); /* Adjust the box-shadow as needed */
+    transform: translateY(-2px); /* Move the div slightly up on hover */
+  }
+  
 .ListItems{
-    color: black;
+    color: rgb(255, 255, 255);
     font-weight: 200;
     font-size: large;
+    text-align: center;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    
 }
-
-.InputItemsOfProfile{
-    width: 100%;
-    text-align: end;
-    color: rgb(0, 0, 0);
+.BioStyle{
+    color: rgb(255, 255, 255);
+    font-weight: 600;
+    font-size: larger;
+    text-align: center;    
+}
+.ListItemsProfileData {
+    display: flex;
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+    font-weight: 600;
+    margin-top: 15px;
+    height: 45px;
+    background-color: #2d3033;
+    text-align: center;
+    border-radius: 8px;
+  }
+  
+  .BioStyle {
+    color: rgb(255, 255, 255);
+    font-weight: 600;
+    font-size: larger;
+  }
+  
+.InputItemsOfProfile {
+    flex: 1; 
+    width: 85%;
+    text-align: start;
+    color: rgb(255, 255, 255);
     font-weight: 600;
     font-size: medium;
     border: none;
+    outline: none; 
+    background: none; 
+    border-bottom: 1px solid rgb(158, 150, 150); 
+    margin-bottom: 10px; 
+    margin-left: 10px;
+    padding-top:15px;
+  }
+  
+  /* Optional: Add bottom border for the line effect */
+.InputItemsOfProfile::after {
+    content: "";
+    display: block;
+    border-bottom: 1px solid black; /* Adjust the color as needed */
+    margin-top: 4px; /* Adjust the spacing as needed */
+  }
 
-}
 
-.InputItemsOfProfileData{
-    width: 100%;
-    height: auto;
-    color: black;
-    font-weight: 400;
-    margin-right: 15px;
-    text-align: center;
-    border: none;
-    outline: none;  
-}
-.ListItemsProfileData{
-    display: grid;
-    color: black;
-    font-size: larger;
-    font-weight: 600;
-    margin-bottom: 5px;
-    margin-top: 15px;
-    height: 45px; 
-}
+
 textarea.InputTextAreaProfileBio{
     padding: 0;
     margin: 0;
+    margin-right: 4px;
 }
 .InputTextAreaProfileBio{
     width: 100%;
     height: 150px;
-    color: black;
+    color: rgb(252, 246, 246);
     font-weight: 400;
-    margin-right: 1px;
+    text-align: start;
+    padding-right: 4px;
     border: none;
     outline: none; 
+    background-color:#2d3033;
      
 }
 
 .InputTextAreaProfileBio {
     width: 100%;
     height: 150px;
+    
   }
 
   
 .ListItemsProfileBio{
     display: grid;
-    color: black;
+    color: rgb(255, 255, 255);
     font-size: larger;
     font-weight: 600;
-    margin-bottom: 5px;
-    margin-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 1px;
     height: 150px;
-    width: 440px;
+    width: 450px;
+    background-color: #2d3033;
 }
 
 .ItemsProfileData{
@@ -116,15 +154,20 @@ textarea.InputTextAreaProfileBio{
     height: 45px; 
 }
 
-
 .saveChangesButton {
     background-color: #2279c0; 
     color: white;
     padding: 15px 25px;
-    margin-left: 85vh;
+    width: 550px;
+    position: fixed;
+    bottom: 150px;
+    left: 50%;
+    transform: translateX(-50%);
     border-radius: 5px;
     border: none;
-    cursor: pointer;
-    align-items: flex-end;
-  }
-  
+    cursor: pointer; 
+}
+
+.saveChangesButton:hover {
+    background-color: #14588f;
+}

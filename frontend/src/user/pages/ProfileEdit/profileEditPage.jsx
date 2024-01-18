@@ -4,6 +4,7 @@ import EditProfile from '../../components/EditProfile/editProfile'
 import './profileEditPage.css'
 
 const ProfileEditPage = () => {
+  
   return (
     <div>
     <div>

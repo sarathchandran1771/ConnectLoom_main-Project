@@ -11,14 +11,14 @@ const likesSchema = new mongoose.Schema({
         ref: 'Post',
         required: true,
     },
-    likes: [{
-        user: {
-            type: [],
-            ref: 'User',
-        },
-        islike: Boolean,
-    }],
+    likes: {
+        type: Map,
+        of: Boolean,
+        default: {},
+    },
 });
+
+likesSchema.index({ user: 1, post: 1 }, { unique: true });
 
 const Likes = mongoose.model('Likes', likesSchema);
 

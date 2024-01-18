@@ -7,6 +7,7 @@ import AdminLogin from "./pages/adminLogin/adminLogin";
 import Dashboard from "./pages/dashboard/dashboard";
 import UserManagement from "./pages/usermanagement/users.jsx";
 import PostReportManagement from "./pages/postManagement/postReport.js";
+import AdvertisementUpload from "./pages/advertisement_Upload/adsUpload.jsx";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import  './app.css'
@@ -49,9 +50,10 @@ function AdminRoutes() {
               <Topbar setIsSidebar={setIsSidebar} />
               <main className="content">
                 <Routes>
-                {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+                 <Route path="/dashboard" element={<Dashboard />} /> 
                 <Route path="/user-Management" element={<UserManagement />} />
                 <Route path="/post-Management" element={<PostReportManagement />} />  
+                <Route path="/ads-Upload" element={<AdvertisementUpload />} />  
                 </Routes>
               </main>
             </div>

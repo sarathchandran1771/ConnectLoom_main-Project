@@ -1,44 +1,67 @@
-import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
+import React, { useEffect, useState } from "react";
+import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
-import { mockTransactions } from "../../data/mockdata";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-// import EmailIcon from "@mui/icons-material/Email";
-// import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-// import PersonAddIcon from "@mui/icons-material/PersonAdd";
-// import TrafficIcon from "@mui/icons-material/Traffic";
-// import Header from "../../components/Header";
-// import LineChart from "../../components/LineChart";
-// import GeographyChart from "../../components/GeographyChart";
-// import BarChart from "../../components/BarChart";
-// import StatBox from "../../components/StatBox";
-// import ProgressCircle from "../../components/ProgressCircle";
+import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import TrafficIcon from "@mui/icons-material/Traffic";
+import LineChart from "../../components/LineChart/LineChart";
+import StatBox from "../../components/StatBox/StatBox";
+import ProgressCircle from "../../components/ProgressCircle/ProgressCircle";
+import {
+  useGetAllUsersMutation,
+  useGetPremiumUserMutation,
+} from "../../../Shared/redux/adminSlices/adminApiSlices";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
+  const [getPremiumUser, { data, error, isLoading }] =
+    useGetPremiumUserMutation();
+  const [chartData, setChartData] = useState([]);
+  const [recentTransaction, setRecentTransaction] = useState([]);
+  const [getAllUsers, { userData }] = useGetAllUsersMutation();
+  const [allclients, setAllClients] = useState([]);
+  const setLimit = 10000;
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch premium user data
+        const premiumUserResponse = await getPremiumUser();
+        const premiumUsers = premiumUserResponse.data.users;
+        const totalPremiumUsers = premiumUsers.length;
+        const revenuePerPremiumUser = 500;
+        const totalRevenue = totalPremiumUsers * revenuePerPremiumUser;
+
+        // Set premium user data
+        setChartData(totalRevenue);
+        setRecentTransaction(premiumUsers);
+        // Fetch all users data
+        const allUsersResponse = await getAllUsers();
+        const allUsers = allUsersResponse.data.user;
+        // Set all clients data
+        setAllClients(allUsers);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    fetchData();
+  }, [getPremiumUser, getAllUsers]);
+  const validChartData = isNaN(chartData) ? 0 : chartData;
+  const validSetLimit = isNaN(setLimit) ? 1 : setLimit;
+  const percentage = validChartData / validSetLimit;
+  const totalAmount = recentTransaction.length * 500;
+
+  const formattedTotalAmount = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+  }).format(totalAmount);
+
   return (
     <Box m="20px">
-      {/* HEADER */}
-      <Box display="flex" justifyContent="space-between" alignItems="center">
-        {/* <Header title="DASHBOARD" subtitle="Welcome to your dashboard" /> */}
-
-        <Box>
-          <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
-        </Box>
-      </Box>
-
       {/* GRID & CHARTS */}
       <Box
         display="grid"
@@ -47,7 +70,8 @@ const Dashboard = () => {
         gap="20px"
       >
         {/* ROW 1 */}
-        {/* <Box
+
+        <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
@@ -55,37 +79,18 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
-            progress="0.75"
-            increase="+14%"
-            icon={
-              <EmailIcon
-                sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
-              />
-            }
-          />
-        </Box> */}
-        {/* <Box
-          gridColumn="span 3"
-          backgroundColor={colors.primary[400]}
-          display="flex"
-          alignItems="center"
-          justifyContent="center"
-        >
-          <StatBox
-            title="431,225"
+            title={recentTransaction.length.toString()} // Update title 
             subtitle="Sales Obtained"
-            progress="0.50"
-            increase="+21%"
+            progress={(recentTransaction.length / 100).toFixed(2)} // Update progress 
+            increase={`+${Math.floor(Math.random() * 30)}%`} 
             icon={
               <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
           />
-        </Box> */}
-        {/* <Box
+        </Box>
+        <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
@@ -93,18 +98,18 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
+            title={allclients?.length?.toString()}
             subtitle="New Clients"
-            progress="0.30"
-            increase="+5%"
+            progress={(allclients?.length / 100).toFixed(2)}
+            increase={`+${Math.floor(Math.random() * 10)}%`}
             icon={
               <PersonAddIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
           />
-        </Box> */}
-        {/* <Box
+        </Box>
+        <Box
           gridColumn="span 3"
           backgroundColor={colors.primary[400]}
           display="flex"
@@ -112,17 +117,17 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
-            progress="0.80"
-            increase="+43%"
+            title={formattedTotalAmount}
+            subtitle="Total Amount"
+            progress={(totalAmount / 1000000).toFixed(2)} 
+            increase={`+${Math.floor(Math.random() * 50)}%`} 
             icon={
               <TrafficIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
           />
-        </Box> */}
+        </Box>
 
         {/* ROW 2 */}
         <Box
@@ -150,20 +155,19 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $59,342.32
               </Typography>
             </Box>
-            <Box>
+            {/* <Box>
               <IconButton>
                 <DownloadOutlinedIcon
                   sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
                 />
               </IconButton>
-            </Box>
+            </Box> */}
           </Box>
-          {/* <Box height="250px" m="-20px 0 0 0">
+          <Box height="250px" m="-20px 0 0 0">
             <LineChart isDashboard={true} />
-          </Box> */}
+          </Box>
         </Box>
         <Box
           gridColumn="span 4"
@@ -183,7 +187,7 @@ const Dashboard = () => {
               Recent Transactions
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {recentTransaction.map((transaction, i) => (
             <Box
               key={`${transaction.txId}-${i}`}
               display="flex"
@@ -192,7 +196,7 @@ const Dashboard = () => {
               borderBottom={`4px solid ${colors.primary[500]}`}
               p="15px"
             >
-              <Box>
+              <Box minWidth="150px">
                 <Typography
                   color={colors.greenAccent[500]}
                   variant="h5"
@@ -201,21 +205,22 @@ const Dashboard = () => {
                   {transaction.txId}
                 </Typography>
                 <Typography color={colors.grey[100]}>
-                  {transaction.user}
+                  {transaction.username}
                 </Typography>
               </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
+              <Box color={colors.grey[100]} minWidth="100px">
+                {new Date(transaction.updatedAt).toLocaleDateString()}
+              </Box>
               <Box
                 backgroundColor={colors.greenAccent[500]}
                 p="5px 10px"
                 borderRadius="4px"
               >
-                ${transaction.cost}
+                $500
               </Box>
             </Box>
           ))}
         </Box>
-
         {/* ROW 3 */}
         <Box
           gridColumn="span 4"
@@ -224,57 +229,22 @@ const Dashboard = () => {
           p="30px"
         >
           <Typography variant="h5" fontWeight="600">
-            Campaign
+            Revenue Generated
           </Typography>
-          {/* <Box
+          <Box
             display="flex"
             flexDirection="column"
             alignItems="center"
             mt="25px"
           >
-            <ProgressCircle size="125" />
-            <Typography
-              variant="h5"
-              color={colors.greenAccent[500]}
-              sx={{ mt: "15px" }}
-            >
-              $48,352 revenue generated
+            <ProgressCircle progress={percentage} size="125" />
+            <Typography variant="h5" color="#2ecc71" sx={{ mt: "15px" }}>
+              ${chartData} revenue generated ({(percentage * 100).toFixed(2)}%)
             </Typography>
-            <Typography>Includes extra misc expenditures and costs</Typography>
-          </Box> */}
-        </Box>
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ padding: "30px 30px 0 30px" }}
-          >
-            Sales Quantity
-          </Typography>
-          {/* <Box height="250px" mt="-20px">
-            <BarChart isDashboard={true} />
-          </Box> */}
-        </Box>
-        <Box
-          gridColumn="span 4"
-          gridRow="span 2"
-          backgroundColor={colors.primary[400]}
-          padding="30px"
-        >
-          <Typography
-            variant="h5"
-            fontWeight="600"
-            sx={{ marginBottom: "15px" }}
-          >
-            Geography Based Traffic
-          </Typography>
-          {/* <Box height="200px">
-            <GeographyChart isDashboard={true} />
-          </Box> */}
+            <Typography>
+              Total Limit to achieve. Limit: ${setLimit}
+            </Typography>
+          </Box>
         </Box>
       </Box>
     </Box>

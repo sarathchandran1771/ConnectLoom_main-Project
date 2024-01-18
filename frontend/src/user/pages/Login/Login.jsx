@@ -8,6 +8,7 @@ import loginCoverPic from "../../Icons/loginPage-sample.png";
 import instagramLogo from "../../Icons/instagram_black.png";
 import { toast } from "react-toastify";
 import "./Login.css";
+import FaceBookLoginPage from "./faceBookLogin"
 
 function Login() {
   const [emailId, setemailId] = useState("");
@@ -35,7 +36,6 @@ function Login() {
     }
     try {
       const userData = await login({ emailId, password }).unwrap();
-      console.log("userData",userData)
       dispatch(
         setCredentials({
           _id: userData._id,
@@ -46,6 +46,10 @@ function Login() {
           privatePublic:userData.privatePublic,
           profilePic:userData.profilePic,
           token: userData.token,
+          postsByUser:userData.postsByUser,
+          isPremium:userData.isPremium,
+          paymentStatus:userData.paymentStatus,
+          isVerified:userData.isVerified
         })
       );
 
@@ -102,13 +106,17 @@ function Login() {
               display: "flex",
               alignItems: "center",
               cursor: "pointer",
-              marginLeft: 100,
+              marginLeft: 80,
             }}
           >
-            <p style={{ fontWeight: 600, color: "#385185" }}>
+            {/* <p style={{ fontWeight: 600, color: "#385185" }}>
               Log in with facebook
-            </p>
+            </p> */}
+            <FaceBookLoginPage/>
+
           </div>
+          <>
+          </>
           <div>
             <Link to="/forgetpassword">
               <p

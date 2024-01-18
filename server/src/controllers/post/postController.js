@@ -17,7 +17,6 @@ cloudinaryConfig();
 
 const postNewDataPosting = async (req, res) => {
   const { description, isDelete, comments } = req.body;
-  console.log("post req.body", req.body);
 
   // const imageID = req.body.cloudinaryData.url;
   const imageID = req.body.cloudinaryData.map((data) => data.url);
@@ -45,7 +44,6 @@ const postNewDataPosting = async (req, res) => {
       isDelete: isDelete,
       comments: comments,
     });
-    console.log("post", post);
     res.status(200).json(post);
   } catch (error) {
     console.error("Internal_post_error", error);
@@ -55,12 +53,16 @@ const postNewDataPosting = async (req, res) => {
 
 const getDataPostedOnprofile = async (req, res) => {
   try {
-    const usersId = req.query.userID;
-    const post = await Post.find({ user: usersId, isReport: false })
-      .populate("user")
+    const usersId = req.params.userID;
+    const post = await Post.find({
+      user: usersId,
+      isReport: false,
+      archived: true,
+})      .populate("user")
       .select("-password");
-    if (!post || post.length === 0) {
-      console.log("Posts not found");
+
+      if (!post || post.length === 0) {
+        console.log("Posts not found");
       return res.status(200).json({ message: "Posts not found" });
     }
     res.status(200).json(post);
@@ -72,14 +74,12 @@ const getDataPostedOnprofile = async (req, res) => {
 
 const getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.find({ isReport: { $ne: true }, reportCount: { $lt: 5 } })
+    const posts = await Post.find({ isReport: { $ne: true }, reportCount: { $lt: 5 }, archived: { $ne: true }  })
       .populate("user") 
       .select("-password");
     if (!posts || posts.length === 0) {
-      console.log("Posts not found");
       return res.status(200).json({ message: "Posts not found" });
     }
-    console.log("users post",posts)
     res.status(200).json(posts);
   } catch (error) {
     console.error("Internal_get_error", error);
@@ -89,8 +89,6 @@ const getAllPosts = async (req, res) => {
 
 
 const deletePost = async (req, res) => {
-  console.log("welcome delte post");
-  console.log("Received delete request for postId:", req.params.postId);
   try {
     const postId = req.params.postId;
 
@@ -136,11 +134,9 @@ const reportPost = async (req, res) => {
     if (post.reportCount >= 5) {
       post.isReport = true;
     }
-
     // Save the updated post
     const updatedPost = await post.save();
     console.log("updatedPost",updatedPost);
-    console.log("Post reported successfully");
     return res.status(200).json({ message: "Post reported successfully", updatedPost });
   } catch (error) {
     console.error("Error reporting post", error);
@@ -149,11 +145,39 @@ const reportPost = async (req, res) => {
 };
 
 
+const archivePost = async (req, res) => {
+  try {
+    const postId = req.params.postId;
+    // Check if the post exists
+    const post = await Post.findById(postId);
+    const user = await User.findById(post.user._id);
+    
+    if (!post) {
+      return res.status(404).json({ message: "Post not found" });
+    }
+    if (post.user.toString() !== user._id.toString()) {
+      console.log("both the ID are not matching");
+      return res.status(403).json({ message: "Permission denied" });
+    }
+    // Toggle the value of the 'archived' field
+    const updatedPost = await Post.updateOne(
+      { _id: postId },
+      { $set: { archived: !post.archived } } 
+    );
+
+    res.status(200).json({ message: "Post archived successfully" });
+  } catch (error) {
+    console.error("Internal_archive_error", error);
+    res.status(500).json({ message: "Internal Server Error", error });
+  }
+};
+
 
 module.exports = { 
   postNewDataPosting, 
   getDataPostedOnprofile,
    deletePost,
    reportPost,
-   getAllPosts
+   getAllPosts,
+   archivePost
   };

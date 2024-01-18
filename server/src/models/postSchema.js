@@ -19,7 +19,11 @@ const postSchema = new mongoose.Schema({
 
     isDelete: {
         type: Boolean,
-    }, 
+    },
+    archived: {
+        type: Boolean,
+        default: false,
+      }, 
     reportCount: {
         type: Number,
         default: 0,
@@ -32,6 +36,17 @@ const postSchema = new mongoose.Schema({
     comments: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Comment',
+    }],
+    likes: [{
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        isLiked: {
+            type: Boolean,
+            default: true, // Set default to true when creating the like
+        },
     }],
 }, { timestamps: true });
 

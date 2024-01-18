@@ -7,9 +7,13 @@ const bcrypt = require("bcrypt");
 const corsManage = require("../../../shared/utilities/corsManage");
 const saltRounds = 10;
 const dotenv = require("dotenv");
-var nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 const jwt = require('jsonwebtoken');
 const verifyToken = require("../../../shared/utilities/authToken");
+const SECRET_KEY = process.env.STRIPE_SECRET_KEY
+const stripe = require("stripe")(SECRET_KEY)
+const paypal = require('paypal-rest-sdk');
+
 const {
   sendVerificationEmail,
 } = require("../../middleware/EmailIdVerification");
@@ -21,12 +25,18 @@ const { v4: uuidv4 } = require("uuid");
 const generateUniqueToken = () => uuidv4();
 const verificationToken = generateUniqueToken();
 const User = require("../../models/userSchema");
-// const ConnectLoom_Logo = require('../../../views/icons/ConnectLoom_Logo.png')
+const Post = require("../../models/postSchema.js")
 cloudinaryConfig();
 dotenv.config();
 userRouter.use(corsManage);
-
-
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = new S3Client({
+  region: process.env.S3_BUCKET_REGION,
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY,
+    secretAccessKey: process.env.S3_SECRET_KEY
+  }
+});
 
 const postNewUserRegister = async (req, res) => {
   try {
@@ -38,6 +48,7 @@ const postNewUserRegister = async (req, res) => {
       privatePublic,
       profilePic,
       Bio,
+      isPremium,
     } = req.body;
     if (!validator.isEmail(emailId)) {
       return res.status(400).json({ error: "Invalid email address" });
@@ -64,7 +75,8 @@ const postNewUserRegister = async (req, res) => {
       emailToken: verificationToken,
       Bio,
       privatePublic,
-      profilePic
+      profilePic,
+      isPremium
     });
 
     if (user) {
@@ -120,6 +132,8 @@ const getNewRegisteredUser = async (req, res) => {
     const { emailId, password } = req.body;
     const user = await User.findOne({ emailId });
 
+    const postsByUser = await Post.find({ user: user._id, isReport: false });
+ 
     const isPasswordMatch = await user.matchPassword(password);
 
     user.reportCount += 1;
@@ -139,6 +153,10 @@ const getNewRegisteredUser = async (req, res) => {
         privatePublic:user.privatePublic,
         profilePic:user.profilePic,
         token:token,
+        postsByUser:postsByUser,
+        isPremium:user.isPremium,
+        paymentStatus:user.paymentStatus,
+        isVerified:user.isVerified
       });
       console.log("User logged in");
     } else {
@@ -150,58 +168,10 @@ const getNewRegisteredUser = async (req, res) => {
   }
 };
 
-// const userForgetPassword = async (req, res) => {
-//   try {
-//     console.log("userForgetPassword");
-//     const { emailId } = req.body;
-//     const user = await User.findOne({ emailId: emailId });
-//     console.log("reqest body", req.body);
-//     console.log("user body", user);
-
-//     if (!user) {
-//       return res.send({ status: "User not exists" });
-//     }
-//     const token = verifyToken(res, user._id);
-
-//     var transporter = nodemailer.createTransport({
-//       service: "gmail",
-//       auth: {
-//         user: process.env.USER,
-//         pass: process.env.PASS,
-//       },
-//     });
-
-//     var mailOptions = {
-//       from: process.env.USER,
-//       to: emailId,
-//       subject: "Reset your password",
-//       text: `http://localhost:3000/resetPassword/${user._id}/${token}`,
-//     };
-
-//     transporter.sendMail(mailOptions, function (error, info) {
-//       if (error) {
-//         console.log("error from forget password", error);
-//       } else {
-//         console.log("Email sent: " + info.response);
-//         return res.send({ status: "Success" });
-//       }
-//     });
-
-//     res.send({ status: "Token sent successfully" });
-//   } catch (error) {
-//     console.error("Error in forgetPassword:", error);
-//     res.status(500).send({ status: "Internal Server Error" });
-//   }
-// };
-
 const userForgetPassword = async (req, res) => {
   try {
-    console.log("userForgetPassword");
     const { emailId } = req.body;
     const user = await User.findOne({ emailId: emailId });
-    console.log("reqest body", req.body);
-    console.log("user body", user);
-
     if (!user) {
       return res.send({ status: "User not exists" });
     }
@@ -215,7 +185,7 @@ const userForgetPassword = async (req, res) => {
       },
     });
 
-    const logoSrc = `${process.env.FRONTEND_BASEURL}/public/views/icons/ConnectLoom_Logo.png`;
+    const logoSrc = `${process.env.FRONTEND_BASEURL}/views/icons/ConnectLoom_Logo.png`;
     console.log("logoSrc",logoSrc)
     const mailOptions = {
       from: process.env.USER,
@@ -260,24 +230,17 @@ const userForgetPassword = async (req, res) => {
   }
 };
 
-
-
-
 const resetPassword = async (req, res) => {
   const { id, token } = req.params;
   const { confirmPassword } = req.body;
-console.log("confirmPassword",confirmPassword)
   try {
     // Check if the user exists
     const user = await User.findById({ _id: id });
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
     // Verify the token
     const isTokenValid = jwt.verify(token, process.env.JWT_SECRET);
-
     if (isTokenValid) {
       const salt = bcrypt.genSaltSync(saltRounds);
       const hashedPassword = bcrypt.hashSync(confirmPassword, salt);
@@ -290,33 +253,23 @@ console.log("confirmPassword",confirmPassword)
   } catch (error) {
     console.error("Error resetting password:", error);
     res.status(500).json({ message: "Error resetting password" });
-  }
+  } 
 };
 
 const uploadProfileImage = async (req, res) => {
-  console.log('Request received at /uplaod-profileImage');
   try {
-    const { userinfo } = req.body;
-    console.log('req.body',req.body);
-    console.log('req.bouserInfody',userinfo);
-
-    const user = await User.findById(userinfo);
-    const cloudinaryData = req.body.cloudinaryData; 
-
+    const { userId } = req.body;
+    const imageUrl = `https://${process.env.S3_BUCKETNAME}.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${req.file.key}`;
+    const user = await User.findById(userId);
     if (!user) {
       console.log("User not found for updating");
       return res.status(404).json({ error: "User not found" });
     }
    
     if (user.isVerified === true) {
-      // Assuming user.profilePic is an array, update accordingly
-      const imageID = cloudinaryData.url;
-      user.profilePic = imageID;
+      user.profilePic = imageUrl;
 
       const updatedUser = await user.save();
-
-      console.log("User updated successfully", updatedUser);
-
       return res.status(200).json({ message: "Profile updated successfully", updatedUser });
     }
   } catch (error) {
@@ -324,6 +277,30 @@ const uploadProfileImage = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// Your Express route handler
+const checkAndLogout = async (req, res) => {
+  const { userId } = req.body;
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    if (!user.isVerified) {
+      // If blocked, perform logout
+      res.cookie("jwt", "", {
+        httpOnly: true, 
+        expires: new Date(0),
+      });
+      return res.status(200).json({ message: "User is blocked. Logged out successfully", isVerified: false });
+    }
+    // If not blocked, you can handle this case differently or respond accordingly
+    res.status(200).json({ message: "User is not blocked", isVerified: true });
+  } catch (error) {
+    console.error('Error checking and logging out user:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+}; 
 
 
 const logoutUser = (req, res) => {
@@ -334,8 +311,6 @@ const logoutUser = (req, res) => {
   console.log("Logged out successfully");
   res.status(200).json({ message: "Logged out successfully" });
 };
-
-
 
 const OAuth = async (req, res) => {
   try {
@@ -466,6 +441,14 @@ const updateUser = async (req, res) => {
       user.profilePic = profilePic;
       user.Bio = Bio;
 
+      // Ensure followingCount is not less than 0
+      if (user.account.followingCount < 0) {
+        user.account.followingCount = 0;
+        }
+      // Ensure followingCount is not less than 0
+      if (user.account.followersCount < 0) {
+        user.account.followersCount = 0;
+      }
       // Save the updated user
       const updatedUser = await user.save();
       console.log("User updated successfully",updatedUser);
@@ -476,6 +459,208 @@ const updateUser = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+const client_secret = process.env.STRIPE_PUBLISHABLE_KEY
+
+const ConfirmPayment = async (req, res) => {
+  try {
+    const { userId} = req.body;
+    console.log("ConfirmPayment req.body", userId);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log("User not found for updating");
+      return res.status(404).json({ error: "User not found" });
+    }
+    const totalAmount = 50000;
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      customer_email: user.emailId,
+      billing_address_collection: 'required',
+      shipping_address_collection: {
+        allowed_countries: ['US'], 
+      },
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: 'Subscription',
+            },
+            unit_amount: totalAmount,
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_BASEURL}/success`,
+      cancel_url: `${process.env.FRONTEND_BASEURL}/cancel`,
+    });
+    res.json({ sessionId: session.id });
+  } catch (error) {
+    console.error("Error confirming payment:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+const webhookHandler = async (request, response) => {
+  console.log('Welcome  webhookHandler ',);
+
+  const endpointSecret = process.env.STRIPE_ENDPOINT_KEY;
+
+  let event = request.body;
+  if (endpointSecret) {
+    const signature = request.headers["stripe-signature"];
+    try {
+      event = stripe.webhooks.constructEvent(
+        request.body,
+        signature,
+        endpointSecret
+      );
+    } catch (err) {
+      console.log(`⚠️ Webhook signature verification failed.`, err.message);
+      return response.sendStatus(400);
+    }
+  }
+  let subscription;
+  let status;
+  switch (event.type) {
+    case "customer.subscription.created":
+      subscription = event.data.object;
+      status = subscription.status;
+      break;
+    default:
+  } 
+  if (event.type === "checkout.session.completed") {
+    const userMailId = event.data.object.customer_email;
+    const updatedUser = await User.findOneAndUpdate(
+      { emailId: userMailId },
+      { $set: { paymentStatus: true, isPremium: true } },
+      { new: true }
+    );
+    console.log('the payment done and updated', updatedUser);
+
+    const successMessage = "Payment successfully completed.";
+    response.json({ updatedUser, successMessage });
+  }else{
+    response.sendStatus(200);
+  }
+};
+
+
+paypal.configure({
+  'mode': 'sandbox', // Change to 'live' for production
+  'client_id': process.env.PAYPAL_CLIENT_ID,
+  'client_secret':  process.env.PAYPAL_SECRET_KEY
+});
+
+
+const searchUsers = async (req, res) => {
+  try {
+    const { searchQuery } = req.query;
+    const users = await User.find({isVerified:true,
+      $or: [
+        { username: { $regex: `^${searchQuery}`, $options: 'i' } },
+        { username: { $regex: `^${searchQuery}`, $options: 'i' } },
+      ],
+    });
+    console.log("users",users);
+    if (users.length > 0) {
+      res.json(users);
+    } else {
+      res.json({ message: "No results found" });
+    }
+  } catch (error) {
+    console.error("Internal error 500", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+const paypalPayment = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    console.log("ConfirmPayment req.body", userId);
+
+    const user = await User.findById(userId);
+    if (!user) {
+      console.log("User not found for updating");
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Create a payment object
+    const payment = {
+      intent: 'sale',
+      payer: {
+        payment_method: 'paypal'
+      },
+      redirect_urls: {
+        return_url: 'YOUR_RETURN_URL',
+        cancel_url: 'YOUR_CANCEL_URL'
+      },
+      transactions: [{
+        item_list: {
+          items: [{
+            name: 'Subscription',
+            sku: 'SUBSCRIPTION_SKU',
+            price: '150.00', // Fixed charge for subscription
+            currency: 'USD',
+            quantity: 1
+          }]
+        },
+        amount: {
+          currency: 'USD',
+          total: '150.00' // Fixed charge for subscription
+        },
+        description: 'Subscription purchase'
+      }]
+    };
+    paypal.payment.create(payment, function (error, payment) {
+      if (error) {
+        console.error("Error creating PayPal payment:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+      } else {
+        // Redirect the user to PayPal for payment approval
+        for (let i = 0; i < payment.links.length; i++) {
+          if (payment.links[i].rel === 'approval_url') {
+            return res.redirect(payment.links[i].href);
+          }
+        }
+      }
+    });
+
+  } catch (error) {
+    console.error("Error confirming payment:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const paypalSuccess = async (req, res) => {
+  const paymentId = req.query.paymentId;
+  const payerId = req.query.PayerID;
+
+  // Create an object to execute the payment
+  const execute_payment_json = {
+    payer_id: payerId
+  };
+
+  // Execute the PayPal payment with the provided payment ID and payer ID
+  paypal.payment.execute(paymentId, execute_payment_json, function (error, payment) {
+    if (error) {
+      // Handle errors if the payment execution fails
+      console.error("Error executing PayPal payment:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    } else {
+      // Payment executed successfully, update your database or perform other actions
+      // You may want to save relevant information from the payment object to your database
+      return res.status(200).json({ success: true, payment });
+    }
+  });
+};
+
+
 
 
 module.exports = {
@@ -488,5 +673,11 @@ module.exports = {
   OAuth,
   reportUser,
   updateUser,
-  uploadProfileImage
+  uploadProfileImage,
+  ConfirmPayment,
+  paypalPayment,
+  paypalSuccess,
+  webhookHandler,
+  checkAndLogout,
+  searchUsers
 };

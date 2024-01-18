@@ -1,0 +1,92 @@
+.mainChatRightbar {
+    background-color:black;
+    height: 100vh;
+    overflow: auto;
+    display: flex;
+    width: 100%;
+}
+
+p {
+    color: white;
+}
+
+.subMainChatRightBar {
+    display: flex;
+    position:fixed;
+    width: 100%;
+
+}
+
+/*********************************/
+
+/* styles.css */
+
+.userContainer {
+    display: flex;
+    margin-top: 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.userContainer:hover {
+    background-color: #7c7878; 
+  }
+  .profileImageContainer {
+    margin-top: 8px;
+    margin-bottom: 8px;
+    margin-left: 3px;
+  }
+  
+  .profileImage {
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+  }
+  
+  .userInfoContainer {
+  }
+  
+  .username {
+    margin-left: 10px;
+    font-size: 18px;
+    font-weight: 600;
+  }
+  
+  /* styles.css */
+
+.profileContainer {
+    display: flex;
+    height: 9.5vh;
+    padding-top: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  
+  .usernameContainer {
+    margin-right: 10px;
+  }
+  
+  .iconContainer {
+    height:50px;
+    width: 150px;
+    cursor: pointer;
+    margin-left: auto; 
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+  }
+ 
+  .messageContainer {
+    border: 1px solid #8a8a8a;
+}
+
+input {  
+  color: aliceblue;
+  background-color: #000000;
+  border: none;
+  border-radius: 10px;
+}
+
+  input::placeholder{
+    color: aliceblue;
+    font-size: 16px;
+  } 

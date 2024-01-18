@@ -3,7 +3,7 @@ import React from "react";
 import { Popover, Box, Typography, Button } from '@mui/material';
 import { useDeletePostMutation } from "../../Shared/redux/slices/userSlice";
 
-const DeletePostConfirmation = ({ open, anchorEl, onClose, onDelete, postId }) => {
+const DeletePostConfirmation = ({ open, anchorEl, onClose, postId }) => {
   const [deletePost, { isLoading }] = useDeletePostMutation();
 
   const handleDelete = async () => {
@@ -11,10 +11,6 @@ const DeletePostConfirmation = ({ open, anchorEl, onClose, onDelete, postId }) =
       if (postId) {
         await deletePost({ postId: postId }); 
         onClose();
-        // Check if onDelete is a function before calling it
-        if (typeof onDelete === 'function') {
-          onDelete();
-        }
       } else {
         console.error("postId is undefined");
       }

@@ -1,4 +1,4 @@
-// postSlice.js
+//redux/userSlice/postSlice.js
 
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
