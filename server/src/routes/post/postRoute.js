@@ -4,25 +4,46 @@ const postRouter = express.Router();
 
 const postController = require("../../controllers/post/postController");
 const commentController = require("../../controllers/post/commentController")
+const postSaveController = require("../../controllers/post/savedController")
+const PostLikeController = require("../../controllers/post/LikeOnPost")
+const blockUserMiddleware = require("../../middleware/blockUserMiddleware ");
+
+
 const verifyToken = require("../../../shared/utilities/authToken");
 const cloudinaryMiddleware = require("../../middleware/cloudinaryMiddleware")
 
 postRouter.post("/post", postController.postNewDataPosting);
 
-postRouter.get("/all-posts", postController.getAllPosts);
+postRouter.get("/all-posts", postController.getAllPosts); 
 
-postRouter.get("/dataPosted", postController.getDataPostedOnprofile);
+postRouter.delete('/deletePosts/:postId',blockUserMiddleware, postController.deletePost);
 
-postRouter.delete('/deletePosts/:postId', postController.deletePost);
-
-postRouter.patch("/reportPost", postController.reportPost);
+postRouter.patch("/reportPost",blockUserMiddleware, postController.reportPost);
 
 
 //comment section
-postRouter.post("/post-Comment", commentController.commentOnPost);
+postRouter.post("/post-Comment",blockUserMiddleware, commentController.commentOnPost);
 
-postRouter.post("/replay-Comment", commentController.replayForComment);
+postRouter.get("/get-Comment",commentController.getCommentsOnPost);
 
+postRouter.post("/replay-Comment",blockUserMiddleware, commentController.replayForComment);
+
+//archive post 
+
+postRouter.get("/getArchivePost/:userID",blockUserMiddleware, postController.getDataPostedOnprofile);
+
+postRouter.patch("/archivePost/:postId",blockUserMiddleware, postController.archivePost);
+
+//save post
+
+postRouter.post("/savePost", postSaveController.savePost);
+
+postRouter.get("/getSavedPost", postSaveController. getAllSavedPosts);
+
+
+//Like post
+
+postRouter.post("/postLike", PostLikeController.likeUnlikePost);
 
 
 module.exports = postRouter;

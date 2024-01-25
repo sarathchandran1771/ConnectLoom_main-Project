@@ -25,6 +25,7 @@ const userSchema = new mongoose.Schema({
     },
     mobileNumber: {
         type: Number,
+        unique: true,
     },
     profilePic: {
         type: String,
@@ -32,6 +33,14 @@ const userSchema = new mongoose.Schema({
     Bio: {
         type: String,
     },
+    paymentStatus: {
+        type: Boolean,
+        default: false,
+      },
+    isPremium: {
+        type: Boolean,
+        default: false,
+      },
     isVerified:{
         type: Boolean,
         default:false
@@ -41,14 +50,12 @@ const userSchema = new mongoose.Schema({
         followersCount: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'Friendrequest',
+            default: 0,
         },
         followingCount: {
             type: mongoose.Schema.Types.ObjectId,
+            default: 0,
         },
-    }],
-    chat: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'chat',
     }],
     reportCount: {
         type: Number,
@@ -59,31 +66,41 @@ const userSchema = new mongoose.Schema({
             }
         },
     },
+    pendingFollowers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    pendingFollowing: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }], 
+    followers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    following: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    account: {
+        followersCount: {
+            type: Number,
+            min: 0,
+        },
+        followingCount: {
+            type: Number,
+            min: 0,
+        },
+    },   
 }, { timestamps: true });
 
 
 // Match user entered password to hashed password in database
 userSchema.methods.matchPassword = async function (enteredPassword) {
-    console.log("Entered Password:", enteredPassword);
-    console.log("Stored Hashed Password:", this.password);
-  
     const isMatch = await bcrypt.compare(enteredPassword, this.password);
-    console.log("Is Password Match?", isMatch);
-  
     return isMatch;
   };
   
-  
-  // Encrypt password using bcrypt
-//   userSchema.pre('save', async function (next) {
-//     if (!this.isModified('password')) {
-//       next();
-//     }
-  
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
-//   });
-
 const User = mongoose.model('user', userSchema);
 
 module.exports = User;

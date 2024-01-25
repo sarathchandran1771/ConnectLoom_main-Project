@@ -10,7 +10,65 @@ const corsManage = require("../../../shared/utilities/corsManage");
 adminRouter.use(corsManage);
 const User = require('../../models/userSchema')
 const Post = require('../../models/postSchema')
+const Advertisement = require('../../models/advertisementSchema')
+const { S3Client } = require('@aws-sdk/client-s3');
 
+const s3 = new S3Client({
+  region: process.env.S3_BUCKET_REGION,
+  credentials: {
+    accessKeyId: process.env.S3_ACCESS_KEY,
+    secretAccessKey: process.env.S3_SECRET_KEY
+  }
+});
+
+const uploadPhoto = async (req, res) => {
+  try {
+    const imageUrl = `https://${process.env.S3_BUCKETNAME}.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${req.file.key}`;
+    const { adName, sponsored, description, fromDate, toDate } = req.body;
+    console.log("req.body",req.body)
+    console.log("imageUrl",imageUrl)
+    const adUpload = await Advertisement.create({
+      adImage:imageUrl,
+      adName: adName,
+      sponsored: sponsored,
+      description:description,
+      fromDate: new Date(fromDate),
+      toDate: new Date(toDate),
+      isDelete:false
+    });
+    return res.status(200).json({ message: 'File uploaded successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Internal Server Error'});
+  }
+};
+
+const getUploadedAdToUser = async (req, res) => {
+      try {
+        const currentDate = new Date();
+        const UploadedAds = await Advertisement.find({
+          isDelete: { $ne: true },
+          fromDate: { $lte: currentDate },
+          toDate: { $gte: currentDate },
+        });        
+        res.status(200).json({UploadedAds})
+      } catch (error) {
+        console.error("Internal error 500", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+};
+
+
+const getUploadedAdvertisement = async (req, res) => {
+      try {
+        const UploadedAds = await Advertisement.find({});
+        console.log("UploadedAds",UploadedAds)
+        res.status(200).json({UploadedAds})
+      } catch (error) {
+        console.error("Internal error 500", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+};
 
 const getAdminLogin = async (req, res) => {
     try {
@@ -121,11 +179,79 @@ const getAdminLogin = async (req, res) => {
       }
     };
 
+
+    const getPremiumUsers = async (req, res) => {
+      try {
+        const users = await User.find({
+          $and: [
+            { paymentStatus: true },
+            { isPremium: true }
+          ]
+        });
+        res.status(200).json({users})
+      } catch (error) {
+        console.error("Internal error 500", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+    };
+
+    const deleteAdPost = async (req, res) => {
+      try {
+        const postId = req.params.postId;
+        const adPosts = await Advertisement.find({_id:postId});
+
+        await Advertisement.updateOne({ _id: postId }, { $set: { isDelete: !adPosts[0].isDelete } });
+
+        const updatedAdPost = await Advertisement.findOne({ _id: postId });
+
+        console.log("Updated Ad Post:", updatedAdPost);
+
+       res.status(200).json({updatedAdPost})
+      } catch (error) {
+        console.error("Internal error 500", error);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+};
+
+      const editAdPost = async (req, res) => { 
+        try {
+          console.log("req.body:", req.body);
+          const imageUrl = `https://${process.env.S3_BUCKETNAME}.s3.${process.env.S3_BUCKET_REGION}.amazonaws.com/${req.file.key}`;
+          const { postId, adName, sponsored, description, fromDate, toDate } = req.body;
+          const updatedAdPost = await Advertisement.findByIdAndUpdate(
+            { _id: postId },
+            {
+              adName: adName,
+              sponsored: sponsored,
+              description: description,
+              fromDate: fromDate,
+              toDate: toDate,
+              adImage: imageUrl, 
+            },
+            { new: true }
+          );
+          console.log("Updated Ad Post:", updatedAdPost);
+          const message='updatedSuccessfully'
+          res.status(200).json({ updatedAdPost,message });
+        } catch (error) {
+          console.error("Internal error 500", error);
+          res.status(500).json({ error: "Internal Server Error" });
+        }
+      };
+
+
+
   module.exports = { 
     getAdminLogin,
-    AdminLogout,
+    AdminLogout, 
      getAllUsers,
      updateUserStatus, 
      updatePostStatus,
-     getReportedPost
+     getReportedPost,
+     uploadPhoto,
+     getUploadedAdToUser,
+     getUploadedAdvertisement,
+     getPremiumUsers,
+     deleteAdPost,
+     editAdPost
     }

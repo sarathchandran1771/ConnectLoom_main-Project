@@ -1,19 +1,31 @@
 const mongoose = require('mongoose');
 
 const chatSchema = new mongoose.Schema({
-    user: {
+    sender: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // passing for to send the message user wise 
+        ref: 'user',
+        required: true,
+    }, 
+    users: [
+        { 
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user',
+            required: true,
+        }
+    ],
+    content: {
+        text:{
+            type: String,  
+            required: true,
+        }
+    },
+    chatRoom: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ChatRoom',
         required: true,
     },
-    message: {
-        type: String,
-    },
-    isDelete: {
-        type: Boolean,
-    }
 }, { timestamps: true });
 
-const chat = mongoose.model('Chat', chatSchema);
-module.exports = chat;
+const chatMessage = mongoose.model('Chat', chatSchema);
+module.exports = chatMessage;
 

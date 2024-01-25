@@ -1,3 +1,4 @@
+//redux/userSlice/authSlice.js
 import {createSlice} from "@reduxjs/toolkit"
 
 const initialState = {
@@ -9,6 +10,8 @@ const initialState = {
 const authSlice = createSlice({
   name: 'auth',
   initialState,
+  profileData: [],
+  status: 'idle',
   reducers: {
     setCredentials: (state, action) => {
       state.userInfo = {
@@ -19,6 +22,10 @@ const authSlice = createSlice({
         bio:action.payload.Bio,
         profilePic:action.payload.profilePic,
         privatePublic:action.payload.privatePublic,
+        postsByUser:action.payload.postsByUser,
+        isPremium:action.payload.isPremium,
+        paymentStatus:action.payload.paymentStatus,
+        isVerified:action.payload.isVerified
       };
       state.token = action.payload.token;
       localStorage.setItem("userInfo", JSON.stringify(state.userInfo));

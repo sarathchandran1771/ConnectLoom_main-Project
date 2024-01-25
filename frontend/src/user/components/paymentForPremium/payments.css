@@ -1,0 +1,28 @@
+/* payment.css */
+.containerStyle {
+  display: flex;
+  justify-content: center;
+  margin-top: 8.9vh;
+  width: 100%;
+  height: 90vh;
+}
+.TextStyle {
+  color: white;
+}
+.paymentButton {
+  background-color: #11a837;
+  color: white;
+  padding: 15px 25px;
+  width: 550px;
+  position: fixed;
+  bottom: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+}
+
+.paymentButton:hover {
+  background-color: #14588f;
+}

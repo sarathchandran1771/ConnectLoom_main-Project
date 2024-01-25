@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   useLogoutMutation,
-  useGetDataPostedMutation,
 } from "../../../Shared/redux/userSlices/userSlice";
 import { logout } from "../../../Shared/redux/userSlices/authSlice";
 import "./Sidebar.css";
@@ -13,9 +12,10 @@ import Exploreicon from "../../Icons/Explore.png";
 import Messageicon from "../../Icons/Messenger.png";
 import Notificationicon from "../../Icons/Notifications.png";
 import Createicon from "../../Icons/New post.png";
-import Profileicon from "../../Icons/sample_profile.JPG";
 import Instagram from "../../Icons/Instagram.png";
-import InstagramIcon from "../../Icons/Instagramlogo.png";
+ import InstagramIcon from "../../Icons/Instagramlogo.png";
+import ConnectLoom_Icon from "../../../Shared/Icons/ConnectLoom_Icon.png";
+import ConnectLoom_Name from "../../../Shared/Icons/ConnectLoom_Name.png";
 import MoreIcon from "../../Icons/Settings.png";
 import NewPost from "../../Icons/IconToCreateNewPost.png";
 import Modal from "react-modal";
@@ -28,6 +28,9 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Paper from "@mui/material/Paper";
 import { TailSpin as Loader } from "react-loader-spinner";
+import SearchFriend from '../searchFriend/searchFriend'
+import Notification from '../Notification/notification'
+import Default_profileIcon from "../../Icons/Default_ProfilePic.jpg";
 
 export default function Sidebar() {
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -38,15 +41,13 @@ export default function Sidebar() {
   const [image, setImage] = useState([]);
   const [imagepre, setimagePre] = useState([]);
   const [showSearch, setShowSearch] = useState(true);
+  const [notificationBar, setNotificationBar] = useState(true);
   const [loading, setLoading] = useState(false);
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const [open, setOpen] = React.useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
   const [logoutApiCall] = useLogoutMutation();
 
   const modalStyle = {
@@ -63,17 +64,11 @@ export default function Sidebar() {
   //workSpace
 
   const { userInfo } = useSelector((state) => state.auth);
-
-  const [profileData, setProfileData] = useState([]);
-
-  const [data] = useGetDataPostedMutation();
-
   //workSpace
   const logoutHandler = async () => {
     try {
       await logoutApiCall().unwrap();
       dispatch(logout());
-      console.log("logout");
       navigate("/");
     } catch (err) {
       console.error(err);
@@ -82,6 +77,10 @@ export default function Sidebar() {
 
   const toggleSearchText = () => {
     setShowSearch(!showSearch);
+  };
+
+  const toggleNotification = () => {
+    setNotificationBar(!notificationBar);
   };
 
   const handlePostSubmit = async () => {
@@ -114,8 +113,8 @@ export default function Sidebar() {
       data.append("cloud_name", "dnudvzoj9");
 
       // Use fetch to send the image data to Cloudinary
-const cloudinaryResponses = await Promise.all(
-  imagepre.map(async (img) => {
+    const cloudinaryResponses = await Promise.all(
+    imagepre.map(async (img) => {
     const data = new FormData();
     data.append("file", img.file);
     data.append("upload_preset", "connectloom");
@@ -128,13 +127,11 @@ const cloudinaryResponses = await Promise.all(
         body: data,
       }
     );
-
     if (!cloudinaryResponse.ok) {
       throw new Error(
         `Cloudinary API error: ${cloudinaryResponse.statusText}`
       );
     }
-
     return await cloudinaryResponse.json();
   })
 );
@@ -194,9 +191,7 @@ const cloudinaryResponses = await Promise.all(
       const imageArray = await Promise.all(
         Array.from(selectedImages).map((file) => processImage(file))
       );
-  
-      console.log("imageArray",imageArray)
-
+      
       setimagePre(imageArray);
     } catch (error) {
       console.error('Error processing images:', error);
@@ -228,6 +223,11 @@ const cloudinaryResponses = await Promise.all(
     slidesToScroll: 1,
     afterChange: handleStepChange,
   };
+
+  const userProfile = async (userId) => {
+    navigate(`/profile/${userInfo?._id}`);
+  };
+
 
   return (
     <div className="mainSidebar">
@@ -407,10 +407,10 @@ const cloudinaryResponses = await Promise.all(
 
       <div>
         <div style={{ display: "flex", marginTop: "45px", marginLeft: "30px" }}>
-          {showSearch === false ? (
-            <img src={InstagramIcon} alt="" className="logos" />
+          {showSearch === false || notificationBar === false ? (
+            <img src={ConnectLoom_Icon} alt="" className="logoIcon" />
           ) : (
-            <img src={Instagram} alt="" className="logos" />
+            <img src={ConnectLoom_Name} alt="" className="logoName" />
           )}
         </div>
 
@@ -425,11 +425,12 @@ const cloudinaryResponses = await Promise.all(
             }}
           >
             <img src={Homeicon} alt="Home" className="logos" />
-            {showSearch && (
+            {showSearch&& (
               <ul>
-                <li className="listText">Home</li>
+              <li className="listText">Home</li>
               </ul>
             )}
+
           </div>
         </Link>
 
@@ -473,6 +474,10 @@ const cloudinaryResponses = await Promise.all(
           </div>
         </Link>
 
+        <Link
+          to={"/inbox"}
+          style={{ textDecoration: "none", color: "white" }}
+        >
         <div
           style={{
             display: "flex",
@@ -489,6 +494,7 @@ const cloudinaryResponses = await Promise.all(
             </ul>
           )}
         </div>
+        </Link>
         <div
           style={{
             display: "flex",
@@ -497,6 +503,7 @@ const cloudinaryResponses = await Promise.all(
             marginLeft: "30px",
             cursor: "pointer",
           }}
+          onClick={ toggleNotification }
         >
           <img src={Notificationicon} alt="Notification" className="logos" />
           {showSearch && (
@@ -522,7 +529,7 @@ const cloudinaryResponses = await Promise.all(
             </ul>
           )}
         </div>
-        <Link to={"/profile"}>
+        <Link to={`/profile/${userInfo?._id}`}>
           <div
             style={{
               display: "flex",
@@ -532,10 +539,12 @@ const cloudinaryResponses = await Promise.all(
               cursor: "pointer",
             }}
           >
-            <img src={Profileicon} alt="Profile" className="profileIcon" />
+            <img src={userInfo?.profilePic || Default_profileIcon} alt="Profile" className="profileIcon" />
             {showSearch && (
               <ul>
-                <li className="listText">Profile</li>
+                <li onClick={userProfile} className="listText">
+                  Profile
+                </li>
               </ul>
             )}
           </div>
@@ -549,7 +558,7 @@ const cloudinaryResponses = await Promise.all(
         >
           <Box sx={modalStyle}>
             <ul style={{ listStyle: "none", textAlign: "center" }}>
-              <Link to={"/profile"}>
+              <Link to={`/profile/${userInfo?._id}`}>
                 <li className="MoreText">
                   <Typography variant="3" component="h2">
                     Profile
@@ -597,69 +606,9 @@ const cloudinaryResponses = await Promise.all(
           </div>
         </div>
       </div>
-      {!showSearch && (
-        <div
-          style={{
-            width: "100%",
-            height: "100vh",
-            backgroundColor: "black",
-            marginLeft: 10,
-          }}
-        >
-          <p
-            style={{
-              color: "white",
-              fontWeight: 600,
-              fontSize: 27,
-              marginLeft: 10,
-              marginTop: 35,
-            }}
-          >
-            Search
-          </p>
-          <div
-            style={{ display: "flex", alignContent: "center", marginLeft: 10 }}
-          >
-            <input
-              type="text"
-              className="showSearchInput"
-              placeholder="Search"
-            />
-          </div>
-          <hr />
-          <p style={{ marginLeft: 10, fontWeight: 600 }}>Recent</p>
+      {!showSearch && <SearchFriend />}
 
-          <div style={{ height: "80vh", overflow: "auto" }}>
-            {profileData.map((imagesArray, index) => (
-              <div key={index}>
-                {imagesArray.map((item, subIndex) => (
-                  <div
-                    key={subIndex}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginLeft: 15,
-                      marginTop: -12,
-                    }}
-                  >
-                    <img
-                      style={{ width: 50, height: 50, borderRadius: "50%" }}
-                      src={item.image}
-                      alt=""
-                    />
-                    <div style={{ marginLeft: 10 }}>
-                      <p style={{ marginTop: 20, fontSize: 15 }}>{item.name}</p>
-                      <p style={{ marginTop: -15, color: "#A8A8A8" }}>
-                        {item.email}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {!notificationBar && <Notification />}
     </div>
   );
 }

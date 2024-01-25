@@ -1,4 +1,4 @@
-// postSlice.js
+//redux/userSlice/postSlice.js
 
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
@@ -7,7 +7,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 export const fetchPostData = createAsyncThunk('post/fetchPostData', async () => {
   try {
     // Make your asynchronous API call here
-    const response = await fetch('http://localhost:5000/api/posts');
+    const response = await fetch('http:/localhost:5000/posts');
     const data = await response.json();
     return data;
   } catch (error) {

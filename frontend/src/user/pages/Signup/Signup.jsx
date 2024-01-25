@@ -91,7 +91,6 @@ const responseGoogle = (response) => {
   onFailure={responseGoogle}
   cookiePolicy={'single_host_origin'}
 />
-
 </GoogleOAuthProvider>
 
           <div style={{display:"flex"}}>
@@ -156,8 +155,6 @@ const responseGoogle = (response) => {
     </div>
   )}
 </div>
-
-      {/* workspace */}
     </div>
 
   );

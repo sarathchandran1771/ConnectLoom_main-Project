@@ -36,7 +36,7 @@ console.log("Team posts",posts)
       const data = await response.json();
       const postsWithId = data.reportedPosts.map((post, index) => ({
         ...post,
-        id: post._id || index,
+        id: index + 1,
       }));
       setPosts(postsWithId);
     } catch (error) {

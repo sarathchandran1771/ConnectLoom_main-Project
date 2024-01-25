@@ -155,12 +155,26 @@ const sidebar = () => {
               color={colors.grey[300]}
               sx={{ m: "15px 0 5px 20px" }}
             >
-              Pages
+              premium Accounts
             </Typography>
             <Item
-              title="Profile Form"
+              title="Premium Accounts"
               to="/admin/form"
               icon={<PersonOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+              <Typography
+              variant="h6"
+              color={colors.grey[300]}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              advertisement
+            </Typography>
+            <Item
+              title="Ads Upload"
+              to="/admin/ads-Upload"
+              icon={<BarChartOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />

@@ -1,16 +1,23 @@
 .mainSidebar{
     background-color: black;
     height: 100vh;
-    overflow: hidden;
+    overflow: auto;
     position: fixed;
-    width: 24%;
+    width: 26%;
     display: flex;
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent; 
+    &::-webkit-scrollbar {
+        width: 0;
+    }
+    &::-webkit-scrollbar-thumb {
+        background-color: transparent;
+    }
 }
 
 .listText{
     color: white;
     list-style: none;
-    
 }
 
 .MoreText{
@@ -48,6 +55,9 @@
     font-size: 14px;
 }
 
+.search-input-container{
+    display: flex;
+}
 .createPost{
     padding-left: 40px;
     padding-right: 40px;
@@ -72,4 +82,13 @@
 }
 .showSearchInput::placeholder{
     color:white
+}
+
+.logoName{
+    width: 100% ;
+    height: 30px;
+}
+.logoIcon{
+    width: 100% ;
+    height: 40px;
 }

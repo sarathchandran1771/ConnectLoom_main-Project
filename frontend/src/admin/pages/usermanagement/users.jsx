@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Box, Typography, useTheme } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
-import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
@@ -16,14 +15,13 @@ const StyledAccessBox = styled(Box)`
   justify-content: center;
   border-radius: 4px;
   background-color: ${({ access, colors }) =>
- access === 'blocked'
+    access === "blocked"
       ? colors.redAccent[700]
-      : access === 'user' 
+      : access === "user"
       ? colors.blocked[500]
       : colors.greenAccent[700]};
   cursor: pointer;
 `;
-
 
 const Team = () => {
   const theme = useTheme();
@@ -50,17 +48,18 @@ const Team = () => {
 
   const handleAccessClick = async (userId) => {
     try {
-      const response = await fetch("http://localhost:5000/admin/updateUserStatus", {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/admin/updateUserStatus",
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
 
       const updatedUser = await response.json();
-      console.log("Updated user:", updatedUser);
-
       // Refresh data to reflect changes
       fetchData();
     } catch (error) {
@@ -69,9 +68,21 @@ const Team = () => {
   };
 
   const columns = [
-    { field: "id", headerName: "ID", flex: 0.3 },
-    { field: "username", headerName: "Name", flex: 1, cellClassName: "name-column--cell" },
-    { field: "isVerified", headerName: "Verified", type: "boolean", headerAlign: "left", align: "left", flex: 1 },
+    { field: "index", headerName: "ID", flex: 0.3 },
+    {
+      field: "username",
+      headerName: "Name",
+      flex: 1,
+      cellClassName: "name-column--cell",
+    },
+    {
+      field: "isVerified",
+      headerName: "Verified",
+      type: "boolean",
+      headerAlign: "left",
+      align: "left",
+      flex: 1,
+    },
     { field: "", headerName: "Premium", flex: 1 },
     { field: "mobileNumber", headerName: "Phone Number", flex: 1 },
     { field: "emailId", headerName: "Email", flex: 1 },
@@ -82,29 +93,24 @@ const Team = () => {
       headerAlign: "center",
       renderCell: ({ row }) => {
         const { access, isVerified } = row;
-
         return (
           <StyledAccessBox
             access={access}
             colors={colors}
             onClick={() => handleAccessClick(row.id)}
           >
-            {access === 'blocked' && <SecurityOutlinedIcon />}
-            {access === 'user' && <LockOpenOutlinedIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
+            {access === "blocked" && <SecurityOutlinedIcon />}
+            {access === "user" && <LockOpenOutlinedIcon />}
+            <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
               {access}
             </Typography>
+            {isVerified ? <LockOpenOutlinedIcon /> : <SecurityOutlinedIcon />}
             {isVerified ? (
-              <LockOpenOutlinedIcon />
-            ) : (
-              <SecurityOutlinedIcon />
-            )}
-            {isVerified ? (
-              <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
+              <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
                 User
               </Typography>
             ) : (
-              <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
+              <Typography color={colors.grey[100]} sx={{ ml: "5px" }}>
                 Blocked
               </Typography>
             )}

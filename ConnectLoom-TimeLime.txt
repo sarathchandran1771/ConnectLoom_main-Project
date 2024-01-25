@@ -1,0 +1,66 @@
+Week 1:
+
+user regestration
+login
+add Post
+Delete Post
+Profile
+Forget & Reset password
+
+
+/** Done **/
+
+Week 2:
+
+Admin Side:
+Admin UI
+Admin  login
+user Management
+post management
+user Side:
+report the post
+report the user
++pending:
+Forget & Reset password
+
+try to:
+saved Post
+Archive Post
+Likes
+Comments
+
+Week 3:
+
+User Side:
+Private/Public Account
+send friend Request
+Accept friend Request
+Verified Account  (Block Ads)
+Sreach Friend
+saved Post
+Archive Post
+Admin Side:
+Push Ads
+
+Week 4:
+
+User Side:
+
+explore
+chat
+Notifications
+
+Admin Side:
+promote post
+DashBoard
+
+pendings + Bug Fixing
+
+
+Week 5:
+
+Study Doker
+CI / CD
+
+
+**Hosting**
