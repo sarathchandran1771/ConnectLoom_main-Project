@@ -79,14 +79,14 @@ p {
     border: 1px solid #8a8a8a;
 }
 
-input {  
+#chatInput {  
   color: aliceblue;
   background-color: #000000;
   border: none;
   border-radius: 10px;
 }
 
-  input::placeholder{
+  #chatInput::placeholder{
     color: aliceblue;
     font-size: 16px;
   } 

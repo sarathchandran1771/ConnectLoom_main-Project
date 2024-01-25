@@ -1,45 +1,8 @@
 //Middleware /blockUserMiddleware 
 const User = require("../models/userSchema");
 const Post = require("../models/postSchema");
-
 const { logoutUser } = require("../controllers/user/userContorller");
 
-// const blockUserMiddleware = async (req, res, next) => {
-//   try {
-//     // console.log("req.body", req.body);
-//     // console.log("req.params", req.params);
-//     // console.log("req.query", req.query.userId);
-//     // console.log("req.query", req.query);
-
-//     const userId = req.body.userId || req.params.userId || req.query.userId; 
-//     const fromUserId =  req.query.fromUserId; 
-//     const postId = req.body.postId || req.params.postId || req.query.postId;  
-
-//     const user = await User.findById(userId);
-//     const users = await User.findById(fromUserId);
-//     const userpost = await Post.findById(postId);     
-//     // const userData = await User.findById(userpost.user._id);
-//     // const userData = userpost.user ? await User.findById(userpost.user._id) : userpost.users ? await User.findById(userpost.users._id);
-//     const userData = userpost.user ? await User.findById(userpost.user._id) : null;
-//     console.log("blockUserMiddleware.userData", userData);
-
-//     const token = verifyToken(res, user||userData);
-
-//     if (!userData) {
-//       console.log("User not found"); 
-//       return res.status(404).json({ error: "User not found" });
-//     }
-
-//     if ((userData && userData.isVerified === false) || (user && user.isVerified === false) || (users && users.isVerified === false)){
-//       logoutUser(req, res);
-//       return;
-//     }
-//   } catch (error) {
-//     console.error("Error checking user status:", error);
-//     return res.status(500).json({ error: "Internal Server Error" });
-//   }
-//   next();
-// };
 const blockUserMiddleware = async (req, res, next) => {
   try {
     const userId = req.body.userId || req.params.userId || req.query.userId; 

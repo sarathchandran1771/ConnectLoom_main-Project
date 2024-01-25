@@ -14,7 +14,7 @@ const cloudinaryMiddleware = require("../../middleware/cloudinaryMiddleware")
 
 postRouter.post("/post", postController.postNewDataPosting);
 
-postRouter.get("/all-posts", postController.getAllPosts);
+postRouter.get("/all-posts", postController.getAllPosts); 
 
 postRouter.delete('/deletePosts/:postId',blockUserMiddleware, postController.deletePost);
 

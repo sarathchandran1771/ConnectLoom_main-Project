@@ -51,7 +51,7 @@ userRouter.post("/mail-verification", userController.OAuth);
 
 userRouter.post("/verifyemail", userController.verifyEmail);
 
-userRouter.post("/login", passwordStrengthMiddleware, userController.getNewRegisteredUser);
+userRouter.post("/login", passwordStrengthMiddleware, userController.getNewRegisteredUser); 
 
 userRouter.post("/forgetPassword", userController.userForgetPassword);
 

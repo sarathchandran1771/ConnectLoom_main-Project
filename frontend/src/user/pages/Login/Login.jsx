@@ -1,4 +1,4 @@
-//src/user/Login/Login.jsx
+//src/user/login/login.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +7,7 @@ import { useLoginMutation } from "../../../Shared/redux/userSlices/userSlice";
 import loginCoverPic from "../../Icons/loginPage-sample.png";
 import instagramLogo from "../../Icons/instagram_black.png";
 import { toast } from "react-toastify";
-import "./Login.css";
+import "./login.css";
 import FaceBookLoginPage from "./faceBookLogin"
 
 function Login() {

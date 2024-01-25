@@ -1,0 +1,46 @@
+version: '3.8'
+services:
+
+# MongoDB service
+  mongo:
+    image: mongo:latest
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: connectLoom
+      MONGO_INITDB_ROOT_PASSWORD: connectLoom
+    networks:
+      - app-network
+# API service
+  server:
+    image: node:latest
+    ports:
+      - '8080:80'
+    volumes:
+      - ./server:/root/server
+    env_file:
+      - ./deploy/server.env
+    entrypoint: sh /root/server/start_server.sh
+    networks:
+      - app-network
+  # Frontend service
+  frontend:
+    build:
+      context: ./deploy
+      dockerfile: Dockerfile
+    ports:
+      - '80:80'
+      - '443:443'
+    env_file:
+      - ./deploy/frontend.env
+    volumes:
+      - ./frontend/build:/var/www/html
+      - ./deploy/default.conf:/etc/nginx/sites-available/default
+    depends_on:
+      - server
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

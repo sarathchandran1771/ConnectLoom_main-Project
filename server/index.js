@@ -49,10 +49,18 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session()); 
 app.use('/public', express.static(path.join(__dirname, 'public')));
- 
+
+app.use(express.static(path.join(__dirname, '../frontend', 'build')));
+
+
+
 app.use("/", userRouter);
 app.use("/post", postRouter);
 app.use("/admin", adminRouter);
+
+app.get('/*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend', 'build', 'index.html')); 
+});
 
 // Move the catch-all middleware to the end
 app.use(notFound);
@@ -69,7 +77,7 @@ const io = require("socket.io")(server,{
 }); 
 
 io.on("connection",(socket)=>{
-  console.log("conencted to socket.io");
+  console.log("conencted to socket.io"); 
 
 
   socket.on('setup',(userData)=>{

@@ -1,6 +1,6 @@
 // src/user/app.js
 import Home from '../../user/pages/Home/Home';
-import Login from '../../user/pages/Login/Login';
+import Login from '../../user/pages/login/Login.jsx';
 import Signup from '../../user/pages/Signup/Signup';
 import EmailVerificationPage from '../../user/pages/Signup/MailVerification.jsx';
 import Explore from '../../user/pages/Explore/Explore';

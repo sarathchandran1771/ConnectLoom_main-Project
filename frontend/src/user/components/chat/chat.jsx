@@ -419,6 +419,7 @@ useEffect(() => {
                           marginLeft: 15,
                           outline: "none",
                         }}
+                        id="chatInput"
                         value={
                           selectedEmoji
                             ? `${newMessage} ${selectedEmoji.emoji}`
