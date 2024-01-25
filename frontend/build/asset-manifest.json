@@ -1,0 +1,28 @@
+{
+  "files": {
+    "main.css": "/static/css/main.ed0f1533.css",
+    "main.js": "/static/js/main.699fdb13.js",
+    "static/media/sample_profile.JPG": "/static/media/sample_profile.9dd805943c14e454e7ed.JPG",
+    "static/media/loginPage-sample.png": "/static/media/loginPage-sample.66d6eaaf896694188857.png",
+    "static/media/Paypal_logo.png": "/static/media/Paypal_logo.04b3edb65b438fe60d98.png",
+    "static/media/forgetpasswordLock.png": "/static/media/forgetpasswordLock.4cb9cb044b3120c2d8dc.png",
+    "static/media/ConnectLoom_Logo.png": "/static/media/ConnectLoom_Logo.d06bb83e37665598f179.png",
+    "static/media/verifiedUser_BG.png": "/static/media/verifiedUser_BG.dfef9b74530b74299348.png",
+    "static/media/Lock_Icon.png": "/static/media/Lock_Icon.ddac9a9dd8dc6ce81471.png",
+    "static/media/Default_ProfilePic.jpg": "/static/media/Default_ProfilePic.5edf0c2bafee92924250.jpg",
+    "static/media/ConnectLoom_Name.png": "/static/media/ConnectLoom_Name.ba180a0f2d15d1dfe324.png",
+    "static/media/ConnectLoom_Icon.png": "/static/media/ConnectLoom_Icon.856ed13da6c329bf0012.png",
+    "static/media/Carousel_Icon.png": "/static/media/Carousel_Icon.f41ac0d7ed81b5ddffb6.png",
+    "static/media/slick.svg": "/static/media/slick.2630a3e3eab21c607e21.svg",
+    "static/media/slick.eot": "/static/media/slick.a4e97f5a2a64f0ab1323.eot",
+    "static/media/slick.ttf": "/static/media/slick.c94f7671dcc99dce43e2.ttf",
+    "static/media/slick.woff": "/static/media/slick.295183786cd8a1389865.woff",
+    "index.html": "/index.html",
+    "main.ed0f1533.css.map": "/static/css/main.ed0f1533.css.map",
+    "main.699fdb13.js.map": "/static/js/main.699fdb13.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.ed0f1533.css",
+    "static/js/main.699fdb13.js"
+  ]
+}
