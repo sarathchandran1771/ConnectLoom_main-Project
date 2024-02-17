@@ -1,66 +1,65 @@
 Week 1:
 
-user regestration
+user registration
+User UI
 login
-add Post
+JWT token authentication
+mail verification
+add Posts
 Delete Post
 Profile
 Forget & Reset password
 
 
-/** Done **/
-
 Week 2:
 
 Admin Side:
 Admin UI
-Admin  login
-user Management
+Admin Login
+user management
 post management
-user Side:
-report the post
-report the user
+JWT token authentication
+
+User Side:
+Report the post with a specific reason
+Report the user with a specific reason
 +pending:
 Forget & Reset password
-
-try to:
-saved Post
-Archive Post
-Likes
-Comments
 
 Week 3:
 
 User Side:
+User profile
+Profile image (S3 Bucket)
 Private/Public Account
 send friend Request
 Accept friend Request
-Verified Account  (Block Ads)
-Sreach Friend
-saved Post
+Verified Account (Block Ads)
+Search Friend
+Saved Posts
 Archive Post
+
 Admin Side:
 Push Ads
 
 Week 4:
 
 User Side:
-
 explore
 chat
 Notifications
+Report on comments with a specific reason
+Delete Comments
+Forward posts to users
 
 Admin Side:
-promote post
-DashBoard
-
-pendings + Bug Fixing
-
+Dashboard
 
 Week 5:
 
-Study Doker
-CI / CD
+NGINX conf
+AWS
+EC2 instance
 
 
-**Hosting**
+******DEPLOYED******
