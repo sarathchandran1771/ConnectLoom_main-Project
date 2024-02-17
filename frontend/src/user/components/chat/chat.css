@@ -86,7 +86,7 @@ p {
   border-radius: 10px;
 }
 
-  #chatInput::placeholder{
+#chatInput::placeholder{
     color: aliceblue;
     font-size: 16px;
   } 

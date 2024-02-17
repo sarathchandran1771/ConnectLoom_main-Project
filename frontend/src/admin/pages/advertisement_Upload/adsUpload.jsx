@@ -43,6 +43,8 @@ const Team = () => {
   const fileInputRef = useRef(null);
   const [deleteAdPost] = useDeleteAdPostMutation();
 
+  const adminToken = localStorage.getItem('adminToken');
+
 
   const handleDeletePost = async (selectedPostId) => {
     try {
@@ -60,7 +62,18 @@ const Team = () => {
 
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:5000/admin/get-ad");
+      if (!adminToken) {
+        console.error("adminToken not found in localStorage");
+        return;
+      }
+      
+      const response = await fetch("http://localhost:5000/admin/get-ad",{
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+          // Add any other headers if needed
+        },
+      });
       const data = await response.json();
       const uploadedAdData = data.UploadedAds.map((ad, index) => ({
         ...ad,

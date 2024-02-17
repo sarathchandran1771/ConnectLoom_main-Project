@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Friendrequest = require("../../models/FollowersSchema");
 const User = require("../../models/userSchema");
+const { json } = require("body-parser");
 
 // POST endpoint to send a friend request
 
@@ -11,7 +12,7 @@ const sendRequest = async (req, res) => {
 
     // Check if the target user is blocked
     const toUser = await User.findById(toUserId);
-    if (toUser.restrict) {
+    if (toUser.restrict) { 
       return res.status(400).json({ message: "Target user is blocked." });
     }
 
@@ -20,15 +21,15 @@ const sendRequest = async (req, res) => {
       $or: [
         { fromUser: fromUserId, toUser: toUserId },
         { fromUser: toUserId, toUser: fromUserId },
-      ],
-    });
-
+      ],  
+    }); 
+  
     if (existingRequest !== null) {
       // Delete data from users
-      console.log(" existingRequest  toUserId", toUserId);
+      console.log(" existingRequest  toUserId", toUserId);   
       console.log("existingRequest   fromUserId", fromUserId);
 
-      await User.findByIdAndUpdate(
+      await User.findByIdAndUpdate( 
         fromUserId,
         {
           $pull: { following: toUserId, pendingFollowing: toUserId },
@@ -37,7 +38,7 @@ const sendRequest = async (req, res) => {
         { new: true }
       );
 
-      await User.findByIdAndUpdate(
+      await User.findByIdAndUpdate(   
         toUserId,
         {
           $pull: { followers: fromUserId, pendingFollowers: fromUserId },
@@ -86,13 +87,12 @@ const sendRequest = async (req, res) => {
 const getPendingRequest = async (req, res) => {
   try {
     const { fromUserId, toUserId } = req.query;
+    console.log("req.query",req.query)
     // Check if the target user is blocked
     const pendingRequest = await Friendrequest.findOne({
       fromUser: fromUserId,
       toUser: toUserId,
     });
-
-    console.log("pendingRequests", pendingRequest);
     if (pendingRequest) {
       return res
         .status(200)
@@ -167,8 +167,36 @@ const respondRequest = async (req, res) => {
   }
 };
 
+
+const getFollowersList = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    // Check if the target user is blocked
+    const userData = await User.find({_id:userId}).populate("followers")
+    const data=userData[0].followers
+    return res.status(200).json({ message: "Followers data List",data});
+    } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+const getFollowingList = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    // Check if the target user is blocked
+    const userData = await User.find({_id:userId}).populate("following")
+    const data=userData[0].following
+    return res.status(200).json({ message: "Following data List",data });
+    } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
 module.exports = {
   sendRequest,
   respondRequest,
   getPendingRequest,
+  getFollowersList,
+  getFollowingList
 };

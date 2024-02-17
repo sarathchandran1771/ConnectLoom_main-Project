@@ -12,8 +12,6 @@ import Exploreicon from "../../Icons/Explore.png";
 import Messageicon from "../../Icons/Messenger.png";
 import Notificationicon from "../../Icons/Notifications.png";
 import Createicon from "../../Icons/New post.png";
-import Instagram from "../../Icons/Instagram.png";
- import InstagramIcon from "../../Icons/Instagramlogo.png";
 import ConnectLoom_Icon from "../../../Shared/Icons/ConnectLoom_Icon.png";
 import ConnectLoom_Name from "../../../Shared/Icons/ConnectLoom_Name.png";
 import MoreIcon from "../../Icons/Settings.png";
@@ -495,6 +493,7 @@ export default function Sidebar() {
           )}
         </div>
         </Link>
+
         <div
           style={{
             display: "flex",

@@ -62,27 +62,28 @@ export default function ArchivedPosts() {
     }
   };
 console.log("userId",userId)
-  // React.useEffect(() => {
-  //   if (!isArchiveOperation.current) {
-  //     const fetchData = async () => {
-  //       try {
-  //         const { data } = await getArchivePost({userId });
-  //         if (Array.isArray(data)) {
-  //           setArchivePosts(data);
-  //         } else {
-  //           setArchivePosts([]);
-  //         }
-  //       } catch (error) {
-  //         console.error("Error fetching archive posts:", error);
-  //       }
-  //     };
-
-  //     fetchData();
-  //   }
-  // }, [getArchivePost, userId, isArchiveOperation.current]);
+  React.useEffect(() => {
+    if (!isArchiveOperation.current) {
+      const fetchData = async () => {
+        try {
+          const { data } = await getArchivePost({userId });
+          console.log("setArchive  data",data)
+          if (Array.isArray(data)) {
+            setArchivePosts(data);
+          } else {
+            setArchivePosts([]);
+          }
+        } catch (error) {
+          console.error("Error fetching archive posts:", error);
+        }
+      };
+      fetchData();
+    }
+  }, [getArchivePost, userId, isArchiveOperation.current]);
+  console.log("setArchivePosts",archivePosts)
 
   return (
-    <Box
+    <div
       sx={{
         width: "100%",
         height: 850,
@@ -101,46 +102,49 @@ console.log("userId",userId)
           No archived posts available.
         </Typography>
       ) : (
-        <ImageList variant="masonry" cols={5} gap={10}>
-          {archivePosts.map((post) => (
-            <React.Fragment key={post._id}>
-              {post.image.map((imageUrl, index) => (
-                <ImageListItem
-                  key={`${post._id}-${index}`}
-                  sx={{
-                    position: "relative",
-                    overflow: "hidden",
-                    "&:hover .coveredLikesAndComments": {
-                      visibility: "visible",
-                    },
-                  }}
-                >
-                  <img
-                    src={MoreOptions}
-                    onClick={() => handleOpen(post._id)}
-                    style={{
-                      height: 35,
-                      width: 35,
-                      cursor: "pointer",
-                      zIndex: 1000,
-                      position: "relative",
-                    }}
-                    alt=""
-                  />
-                  <img
-                    srcSet={`${imageUrl}?w=248&fit=crop&auto=format&dpr=2 2x`}
-                    src={`${imageUrl}?w=248&fit=crop&auto=format`}
-                    alt={post.title || `Image ${index + 1}`}
-                    loading="lazy"
-                  />
-                  <div className="coveredLikesAndComments">
-                    Likes: {post.likes.length} Comments: {post.comments.length}
-                  </div>
-                </ImageListItem>
-              ))}
-            </React.Fragment>
-          ))}
-        </ImageList>
+<div>
+  {archivePosts.map((post) => (
+    <div key={post._id}>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        {post.image.map((imageUrl, index) => (
+          <div
+            key={`${post._id}-${index}`}
+            style={{
+              position: "relative",
+              overflow: "hidden",
+              "&:hover .coveredLikesAndComments": {
+                visibility: "visible",
+              },
+            }}
+          >
+            <img
+              src={MoreOptions}
+              onClick={() => handleOpen(post._id)}
+              style={{
+                height: 35,
+                width: 35,
+                cursor: "pointer",
+                zIndex: 1000,
+                position: "relative",
+              }}
+              alt=""
+            />
+            <img
+              src={`${imageUrl}?w=248&fit=crop&auto=format`}
+              alt={post.title || `Image ${index + 1}`}
+              loading="lazy"
+              style={{ height: 200, width: '45%' }}
+            />
+            <div className="coveredLikesAndComments">
+              Likes: {post.likes.length} Comments: {post.comments.length}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  ))}
+</div>
+
       )}
 
       <Modal
@@ -167,8 +171,8 @@ console.log("userId",userId)
               </Typography>
             </li>
           </ul>
-        </Box>
+        </Box> 
       </Modal>
-    </Box>
+    </div>
   );
 }

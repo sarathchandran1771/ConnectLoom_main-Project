@@ -1,4 +1,4 @@
-//src/user/login/login.jsx
+//src/user/Login/Login.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,7 +7,7 @@ import { useLoginMutation } from "../../../Shared/redux/userSlices/userSlice";
 import loginCoverPic from "../../Icons/loginPage-sample.png";
 import instagramLogo from "../../Icons/instagram_black.png";
 import { toast } from "react-toastify";
-import "./login.css";
+import "./Login.css";
 import FaceBookLoginPage from "./faceBookLogin"
 
 function Login() {
@@ -61,6 +61,11 @@ function Login() {
     }
   };
 
+  const signuphandle = async (e) => {
+    e.preventDefault();
+    navigate("/signup")
+  } 
+
   return (
     <div className="mainLoginPage">
       <div className="left">
@@ -75,6 +80,7 @@ function Login() {
           <img src={instagramLogo} className="instagramLogo" alt="" />
           <div style={{ marginLeft: 20 }}>
             <input
+              id="emailId"
               type="text"
               placeholder="Phone number, emailId, Username"
               className="inputLoginPage"
@@ -83,6 +89,7 @@ function Login() {
             />
             <input
               type="password"
+              id="password"
               placeholder="password"
               className="inputLoginPage"
               value={password}
@@ -109,9 +116,6 @@ function Login() {
               marginLeft: 80,
             }}
           >
-            {/* <p style={{ fontWeight: 600, color: "#385185" }}>
-              Log in with facebook
-            </p> */}
             <FaceBookLoginPage/>
 
           </div>
@@ -138,9 +142,9 @@ function Login() {
           <p style={{ color: "#000", marginLeft: 60 }}>
             Don't have an account?
           </p>
-          <Link to="/signup">
-            <p style={{ color: "#00376B" }}>Sign up</p>
-          </Link>
+           <Link to="/signup">
+            <p onClick={signuphandle} style={{ color: "#00376B", cursor:'pointer' }}>Sign up</p>
+          </Link> 
         </div>
       </div>
     </div>

@@ -1,11 +1,15 @@
-import React, { useState, useRef} from "react";
+import React, { useState, useRef, useEffect} from "react";
 import Default_profileIcon from "../../../Icons/Default_ProfilePic.jpg";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { Box, Typography } from "@mui/material";
 import MaterialModal from "@mui/material/Modal";
 import Divider from "@mui/material/Divider";
 import { useParams } from "react-router-dom";
 import { setCredentials } from "../../../../Shared/redux/userSlices/authSlice";
+import {
+  useGetProfileDataMutation
+} from "../../../../Shared/redux/userSlices/userSlice";
+import SmallCircularProgressVariants from "../../../components/LoadingComponent/spinner"
 
 const modalStyle = {
   position: "absolute",
@@ -21,8 +25,7 @@ const modalStyle = {
   p: 3,
 };
 
-const ProfileImage = (props) => {
-  const { userData } = props;
+const ProfileImage = () => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
@@ -30,8 +33,24 @@ const ProfileImage = (props) => {
   const fileInputRef = useRef(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const { userId } = useParams();
+  const [userProfileData, {IsLoadingProfile}] = useGetProfileDataMutation();
+  const [mappedData, setMappedData] = useState([]);
+  const LoadingProfile = IsLoadingProfile;
 
-  const profileImage = userData?.profilePic
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const  dataResponse  = await userProfileData({ userId: userId }).unwrap();
+      setMappedData(dataResponse.user)
+      } catch (error) {
+        console.error('Error fetching Saved posts:', error);
+      }
+    }
+    fetchData();
+  }, [userId]);
+
+
+  const profileImage = mappedData.profilePic ;
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -49,7 +68,7 @@ const ProfileImage = (props) => {
 
     if (selectedFile) {
       try {
-        formData.append("userId", userId)
+        formData.append("userId", userId);
         formData.append("file", selectedFile);
         const response = await fetch(
           "http://localhost:5000/upload-profileImage",
@@ -59,24 +78,24 @@ const ProfileImage = (props) => {
           }
         );
         const uploadResult = await response.json();
-        console.log("uploadResult",uploadResult)
-        const profileUpdatedData = uploadResult.updatedUser
+        console.log("uploadResult", uploadResult);
+        const profileUpdatedData = uploadResult.updatedUser;
         dispatch(
           setCredentials({
             _id: profileUpdatedData._id,
             username: profileUpdatedData.username,
             emailId: profileUpdatedData.emailId,
-            profilename:profileUpdatedData.profilename,
+            profilename: profileUpdatedData.profilename,
             Bio: profileUpdatedData.Bio,
-            privatePublic:profileUpdatedData.privatePublic,
-            profilePic:profileUpdatedData.profilePic,
+            privatePublic: profileUpdatedData.privatePublic,
+            profilePic: profileUpdatedData.profilePic,
             token: profileUpdatedData.token,
-            postsByUser:profileUpdatedData.postsByUser,
-            isPremium:profileUpdatedData.isPremium,
-            paymentStatus:profileUpdatedData.paymentStatus,
-            isVerified:profileUpdatedData.isVerified
+            postsByUser: profileUpdatedData.postsByUser,
+            isPremium: profileUpdatedData.isPremium,
+            paymentStatus: profileUpdatedData.paymentStatus,
+            isVerified: profileUpdatedData.isVerified,
           })
-        )
+        );
         handleClose();
       } catch (error) {
         console.error("Error uploading image:", error);
@@ -84,8 +103,11 @@ const ProfileImage = (props) => {
     }
   };
 
-
   return (
+    <>
+    {LoadingProfile ? (
+      <SmallCircularProgressVariants />
+    ) : (
     <div>
       <img
         src={profileImage || Default_profileIcon}
@@ -126,50 +148,30 @@ const ProfileImage = (props) => {
               </Typography>
             </li>
             <Divider sx={{ width: "100%", borderColor: "grey" }} />
-            {/* <li className="MoreText">
-            <Typography
-              variant="3"
-              component="h3"
-              style={{ color: "blue", fontWeight: 600, fontSize: 18, cursor: "pointer" }}
-              onClick={() => fileInputRef.current.click()}
-            >
-              Upload photo
-            </Typography>
-            <input type="file" ref={fileInputRef} style={{ display: "none" }} onChange={handleFileChange} />
-          </li> */}
+            <form onSubmit={handleFormSubmit}>
+              <div className="MoreText">
+                <label htmlFor="file">Upload photo:</label>
+                <input
+                  type="file"
+                  id="file"
+                  name="file"
+                  ref={fileInputRef}
+                  onChange={(event) => handleFileChange(event)}
+                  required
+                />
+              </div>
 
-      <form onSubmit={handleFormSubmit}>
-<div className="MoreText">
-        {/* <Typography
-          variant="h3"
-          component="h3"
-          style={{ color: "blue", fontWeight: 600, fontSize: 18, cursor: "pointer" }}
-          onClick={() => fileInputRef.current.click()}
-        >
-          Upload photo
-        </Typography>
-        <input type="file" ref={fileInputRef} onChange={(event) => handleFileChange(event)} /> */}
-        <label htmlFor="file">Upload photo:</label>
-        <input
-                    type="file"
-                    id="file"
-                    name="file"
-                    ref={fileInputRef}
-                    onChange={(event) => handleFileChange(event)}
-                    required
+              {selectedFile && (
+                <div>
+                  <img
+                    src={selectedFile}
+                    alt="Selected"
+                    style={{ maxWidth: "100px", maxHeight: "100px" }}
                   />
-        
-      </div>
-
-      {selectedFile && (
-        <div>
-          <img src={selectedFile} alt="Selected" style={{ maxWidth: "100px", maxHeight: "100px" }} />
-        </div>
-      )}
-
-        {/* Other form elements can be added here */}
-        <button type="submit">Submit</button>
-      </form>
+                </div>
+              )}
+              <button type="submit">Submit</button>
+            </form>
 
             <input type="file" ref={fileInputRef} style={{ display: "none" }} />
             <Divider sx={{ width: "100%", borderColor: "grey" }} />
@@ -197,6 +199,8 @@ const ProfileImage = (props) => {
         </Box>
       </MaterialModal>
     </div>
+        )}
+    </>
   );
 };
 

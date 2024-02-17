@@ -51,7 +51,7 @@ const EditProfile = () => {
   }, [userInfo.privatePublic]);
 
   if (!userInfo || userInfo.length === 0) {
-    return <div>Loading...</div>;
+    return <div>Loading...****</div>;
   }
 
   const VisuallyHiddenInput = styled("input")({

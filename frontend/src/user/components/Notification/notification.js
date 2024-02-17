@@ -10,6 +10,7 @@ import {
   differenceInHours,
   differenceInDays,
 } from "date-fns";
+import RedirectedNotification from '../redirectedNotification/RedirectedNotification'
 
 const SearchFriend = () => {
   const { userInfo } = useSelector((state) => state.auth);
@@ -52,10 +53,21 @@ const SearchFriend = () => {
   };
 
   const handleProfileClick = (selectedId) => {
-    setSelectedId(selectedId);
-    navigate(`/profile/${selectedId}`);
+    const matchingProfileData = notifyData.find(profileData => profileData?._id === selectedId);
+    console.log("matchingProfileData",matchingProfileData)
+  
+    if (matchingProfileData && matchingProfileData?.type === 'comment') {
+      navigate(`/notify/${selectedId}`);
+    } else if(matchingProfileData && matchingProfileData?.type === 'followRequest'){
+      navigate(`/profile/${userId}`); 
+    } else if(matchingProfileData && matchingProfileData?.type === 'friendRequestAccept'){
+      const initiator = matchingProfileData?.initiator?._id
+      navigate(`/profile/${initiator}`); 
+    } else if(matchingProfileData && matchingProfileData?.type === 'like'){
+      navigate(`/notify/${selectedId}`); 
+    }
   };
-
+  
   const renderNotificationContent = (notification) => {
     switch (notification.type) {
       case "comment":
@@ -104,7 +116,8 @@ const SearchFriend = () => {
                     textOverflow: "ellipsis",
                     marginLeft: 3,
                   }}
-                >
+                  onClick={() => handleProfileClick(notification._id)}
+                  >
                   {renderNotificationContent(notification)}
                 </p>
                 <p

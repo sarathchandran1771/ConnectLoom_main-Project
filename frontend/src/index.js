@@ -10,7 +10,6 @@ import AdminRoutes from './admin/App'
 import Modal from 'react-modal';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import ChatProvider from './user/components/chat/chatContext/chatContext.js'; 
 Modal.setAppElement('#root');
 
 const isAdmin = window.location.pathname.includes('/admin');
@@ -20,7 +19,7 @@ root.render(
   <React.StrictMode>
     <Provider store={store}>
       <BrowserRouter>
-      <ChatProvider>
+ 
         <Routes>
           {isAdmin ? (
             // If isAdmin is true, render the admin routes
@@ -33,7 +32,7 @@ root.render(
             <Route path="/*" element={<UserRoutes />} />
           )}
         </Routes>
-        </ChatProvider>
+
       </BrowserRouter>
     </Provider>
     <ToastContainer />

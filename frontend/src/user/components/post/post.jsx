@@ -1,8 +1,6 @@
 //post.js
 import React, { useState, useEffect } from "react";
 import "./Post.css";
-import MoreOptions from "../../Icons/MoreOptions.png";
-import sampleProfile from "../../Icons/sample_profile.JPG";
 import CommentButton from "../../Icons/comment.png";
 import EmojiButton from "../../Icons/Emoji.png";
 import ShareButton from "../../Icons/sharePost.png";
@@ -26,6 +24,10 @@ import AdpostByAdmin from "./adPost";
 import ReportPost from "./reportPost";
 import LikeOnPost from "./LikeOnPost";
 import SavePost from "./savePost";
+import ReportOnComment from "./reportComment/reportComment";
+import DeleteComment from "./reportComment/deleteComment";
+import Divider from "@mui/material/Divider";
+import ForwardPost from "../forwardPost/forwardPost";
 
 const Post = () => {
   const dispatch = useDispatch();
@@ -69,17 +71,8 @@ const Post = () => {
       if (loggedinId !== null) {
         const response = await getCommentOnPost({
           postId: postId,
-          userId: loggedinId,
-        });
-        if (
-          response &&
-          response.data &&
-          Array.isArray(response.data.comments)
-        ) {
-          setComments(response.data.comments);
-        } else {
-          console.error("Invalid or missing response data:", response);
-        }
+        }).unwrap();
+        setComments(response.comments);
       }
     } catch (error) {
       console.error("Error fetching comments:", error);
@@ -95,20 +88,24 @@ const Post = () => {
         userId: loggedinId,
         commentContent: writtenComment,
       });
-      const newComment = response.data?.comment;
+      const commentId = response?.data?.savedComment?._id;
+      const newComment = response?.data?.comment;
       setComments((prevComments) => [newComment, ...prevComments]);
-      addNotificationForComments();
+      setTimeout(() => {
+        addNotificationForComments(commentId);
+      }, 1000);
     } catch (error) {
       console.error("Error adding comment:", error);
     }
   };
 
-  const addNotificationForComments = async () => {
+  const addNotificationForComments = async (commentId) => {
     try {
       const response = await createNotification({
         userId: selectedId,
         type: "comment",
         initiator: loggedinId,
+        target: commentId,
       });
     } catch (error) {
       console.error("Error adding comment:", error);
@@ -140,9 +137,9 @@ const Post = () => {
 
   const fetchInitialLikeStates = async () => {
     try {
-      const res = await fetchPostApi().unwrap();
-      setProfileDatas(res);
-      dispatch(setPostData(res));
+      const res = await fetchPostApi();
+      setProfileDatas(res.data.posts);
+      dispatch(setPostData(res.data.posts));
     } catch (err) {
       console.error("Error fetching initial like states:", err);
       toast.error(err?.data?.message || err.error);
@@ -157,7 +154,7 @@ const Post = () => {
   }, [comments, fetchPostApi, dispatch, userInfo?._id]);
 
   return (
-    <div style={{ marginLeft: "120px", marginTop: "20PX" }}>
+    <div style={{ marginLeft: "120px", marginTop: "20px" }}>
       {profileDatas && profileDatas.length > 0 ? (
         [...profileDatas].reverse().map((imageDetails, outerIndex) => (
           <div key={outerIndex}>
@@ -210,13 +207,19 @@ const Post = () => {
                       />
                     </div>
                     <div style={{ flex: 1, height: "90vh" }}>
-                      <div style={{ height: "77vh", overflow: "auto" }}>
+                      <div
+                        style={{
+                          height: "77vh",
+                          overflow: "auto",
+                          paddingLeft: 15,
+                        }}
+                      >
                         <div
                           style={{
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
-                            paddingLeft: 10,
+                            boxShadow: "0px 4px 5px rgba(0, 0, 0, 2)",
                           }}
                         >
                           <div
@@ -227,22 +230,23 @@ const Post = () => {
                             }}
                           >
                             <img
-                              src={sampleProfile}
+                              src={userInfo?.profilePic}
                               alt=""
                               style={{
-                                width: "30px",
-                                height: "30px",
+                                width: "40px",
+                                height: "40px",
                                 borderRadius: "50%",
                                 objectFit: "cover",
                               }}
                             />
                             <div style={{ paddingLeft: 10 }}>
-                              <p style={{ marginBottom: 16 }}>Username</p>
-                              <p style={{ marginTop: -20 }}>Profilename</p>
+                              <p style={{ marginBottom: 16 }}>
+                                {userInfo?.username}
+                              </p>
+                              <p style={{ marginTop: -16 }}>
+                                {userInfo?.profilename}
+                              </p>
                             </div>
-                          </div>
-                          <div>
-                            <img src={MoreOptions} alt="" />
                           </div>
                         </div>
 
@@ -253,17 +257,21 @@ const Post = () => {
                           {comments
                             .filter((commentData) => commentData)
                             .map((commentData) => (
-                              <div key={commentData._id}>
+                              <div
+                                key={commentData?._id}
+                                style={{ display: "flex" }}
+                              >
                                 <div
                                   style={{
                                     display: "flex",
                                     alignItems: "center",
                                     marginLeft: 30,
+                                    width: "100%",
                                   }}
                                 >
                                   <img
                                     src={
-                                      commentData.user?.profilePic ||
+                                      commentData?.user?.profilePic ||
                                       Default_profileIcon
                                     }
                                     alt=""
@@ -272,33 +280,52 @@ const Post = () => {
                                       height: 30,
                                       borderRadius: "50%",
                                       objectFit: "cover",
-                                      marginTop: 20,
+                                      marginBottom: 20,
                                     }}
                                   />
-                                  <div
-                                    style={{ marginLeft: 20, paddingLeft: 10 }}
-                                  >
-                                    <p style={{ marginLeft: 5 }}>
-                                      {commentData.user?.username ||
+                                  <div style={{ marginLeft: 10 }}>
+                                    <p
+                                      style={{ marginLeft: 5, paddingTop: 28 }}
+                                    >
+                                      {commentData?.user?.username ||
                                         "Unknown User"}
                                     </p>
-                                    <p style={{ marginTop: -15 }}>
-                                      {commentData.content}
+                                    <p style={{ marginTop: -5 }}>
+                                      {commentData?.content}
                                     </p>
+
                                     <p
                                       style={{
                                         color: "#A8A8A8",
-                                        marginTop: -10,
+                                        marginTop: -5,
                                       }}
                                     >
-                                      <p>
-                                        {commentData.createdAt &&
-                                          formatDateDistance(
-                                            new Date(commentData.createdAt)
-                                          )}
-                                      </p>
+                                      {commentData?.createdAt &&
+                                        formatDateDistance(
+                                          new Date(commentData?.createdAt)
+                                        )}
                                     </p>
                                   </div>
+                                </div>
+                                <div
+                                  style={{
+                                    marginTop: 30,
+                                    cursor: "pointer",
+                                    marginRigt: 5,
+                                  }}
+                                >
+                                  <>
+                                    <ReportOnComment
+                                      commentId={commentData?._id}
+                                    />
+                                  </>
+                                  {loggedinId === commentData?.user?._id && (
+                                    <>
+                                      <DeleteComment
+                                        commentId={commentData?._id}
+                                      />
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             ))}
@@ -402,7 +429,7 @@ const Post = () => {
                   style={{
                     position: "relative",
                     width: "100%",
-                    paddingBottom: "100%",
+                    paddingBottom: "80%",
                   }}
                 >
                   {!imageLoaded && (
@@ -467,31 +494,53 @@ const Post = () => {
                         alt=""
                       />
                     </div>
-                    <img src={ShareButton} className="LogoPostIcons" alt="" />
+                    <ForwardPost
+                      className="LogoPostIcons"
+                      postId={imageDetails._id}
+                    />
                   </div>
-                  <SavePost postId={imageDetails._id} />
+                  <SavePost postId={imageDetails} />
                 </div>
-                <p style={{ display: "flex", marginTop: "0px" }}>
-                  14,155 likes
-                </p>
-                <p style={{ textAlign: "start" }}>
-                  Photo by @daisygilardini / A northern fulmar, also called the
-                  Arctic fulmar, follows our ship off Svalbard, with a...{" "}
-                </p>
-                <div onClick={handleShowModal} style={{ cursor: "pointer" }}>
-                  <p style={{ textAlign: "start", color: "#A8A8A8" }}>
-                    View all 2444 comments
+
+                <div key={"index"}>
+                  <p style={{ display: "flex", marginTop: "0px" }}>
+                    {imageDetails.likes.length} likes
                   </p>
+                  {/* <p style={{ textAlign: "start" }}>
+                    Photo by @daisygilardini / A northern fulmar, also called
+                    the Arctic fulmar, follows our ship off Svalbard, with a...
+                  </p> */}
+                  <div
+                    onClick={() => handleShowModal(imageDetails["index"]._id)}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <p
+                      onClick={() => handleShowModal(imageDetails["index"]._id)}
+                      style={{ textAlign: "start", color: "#A8A8A8" }}
+                    >
+                      View all {imageDetails.comments.length} comments
+                    </p>
+                  </div>
                 </div>
+
                 <p
                   style={{
                     textAlign: "start",
-                    fontSize: "11px",
+                    fontSize: "14px",
                     color: "#A8A8A8",
                   }}
                 >
-                  5 Days Ago
+                  {imageDetails?.createdAt &&
+                    formatDateDistance(new Date(imageDetails?.createdAt))}
                 </p>
+
+                <Divider
+                  sx={{
+                    width: "100%",
+                    borderColor: "#494b4d",
+                    marginBottom: 5,
+                  }}
+                />
 
                 {!isPremium && (outerIndex + 1) % 2 === 0 && (
                   <div key={`adElements-${outerIndex}`}>

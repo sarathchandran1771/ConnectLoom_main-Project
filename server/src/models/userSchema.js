@@ -57,30 +57,43 @@ const userSchema = new mongoose.Schema({
             default: 0,
         },
     }],
-    reportCount: {
-        type: Number,
-        default: 0,
-        validate: {
-            validator: function (value) {
-                return value >= 0;
-            }
+    isReported: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'ReportedUsers', 
+    }],
+    isRestrict: [{
+        restricted: {
+            type: Boolean,
+            default: false,
         },
-    },
+        restrictedBy: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user',
+        },
+    }],
+    isLiked:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post', 
+    }],
+    isSaved:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post', 
+    }],
     pendingFollowers: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'user',
     }],
     pendingFollowing: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'user',
     }], 
     followers: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'user',
     }],
     following: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+        ref: 'user',
     }],
     account: {
         followersCount: {
