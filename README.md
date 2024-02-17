@@ -145,6 +145,7 @@ Provides an overview of user and post statistics.
 
 1. Clone the repository:
    
-```bash git clone https://github.com/sarathchandran1771/ConnectLoom_main-Project.git
+```bash
+git clone https://github.com/sarathchandran1771/ConnectLoom_main-Project.git
 cd ConnectLoom
 
