@@ -1,5 +1,3 @@
-# ConnectLoom_main-Project
-
 # ConnectLoom - Social Media Application (MERN Stack)
 
 ## Project Overview
@@ -9,7 +7,7 @@ ConnectLoom is a social media application built using the MERN (MongoDB, Express
 
 ### User Side Features
 
-**User UI :**
+###User UI :
 
 A clean and intuitive user interface built with React and Material UI.
 
@@ -106,7 +104,7 @@ Ability to push advertisements to the platform.
 Provides an overview of user and post statistics.
 
 
-## Technologies Used
+### Technologies Used
 
 **Frontend**
 
