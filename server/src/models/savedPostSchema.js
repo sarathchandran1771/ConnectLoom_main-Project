@@ -11,6 +11,10 @@ const savedPostSchema = new mongoose.Schema({
         ref: 'post',
         required: true,
     },
+    isSaved:{
+        type: Boolean,
+        default: false,
+    }
 });
 
 savedPostSchema.index({ user: 1, post: 1 }, { unique: true });

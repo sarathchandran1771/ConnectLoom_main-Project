@@ -37,16 +37,7 @@ const commentSchema = new mongoose.Schema({
     }],
     isReport: {
         type: Boolean,
-    },
-    reportCount: {
-        type: Number,
-        default: 0,
-        validate: {
-            validator: function (value) {
-                return value >= 0;
-            }
-        },
-    },
+    }
 }, { timestamps: true });
 
 

@@ -1,6 +1,6 @@
 // src/user/app.js
 import Home from '../../user/pages/Home/Home';
-import Login from '../../user/pages/login/Login.jsx';
+import Login from '../../user/pages/Login/Login';
 import Signup from '../../user/pages/Signup/Signup';
 import EmailVerificationPage from '../../user/pages/Signup/MailVerification.jsx';
 import Explore from '../../user/pages/Explore/Explore';
@@ -14,6 +14,8 @@ import CancelPage from'../../user/utils/sucessAndCancel/cancelPage'
 import ChatPage from'../../user/pages/chat/ChatMessage.js'
 import { Navigate } from 'react-router-dom';
 import CheckingUserStatus from './userBlockCheck.js'
+import Notification from "../../user/pages/Notification/Notification.jsx"
+import ChatProvider from '../../user/components/chat/chatContext/chatContext.js'; 
 
 const isAuthenticated = () => {
   const token = localStorage.getItem('token');
@@ -47,11 +49,17 @@ const userRoutes = [
   },
   {
     path: '/home',
-    element: <PrivateRoute element={<CheckingUserStatus element={<Home />} path="/home" />} />,
+    element:(
+      <ChatProvider> 
+        <PrivateRoute 
+        element={<CheckingUserStatus element={<Home />} path="/home" />}
+        />
+      </ChatProvider>
+      ),
   },
   {
     path: '/explore',
-    element: <PrivateRoute element={<CheckingUserStatus element={<Explore />} path="/explore" /> } />,
+    element:<PrivateRoute element={<CheckingUserStatus element={<Explore />} path="/explore" /> } />,
   },
   {
     path: '/profile',
@@ -62,13 +70,24 @@ const userRoutes = [
     element: <PrivateRoute element={<CheckingUserStatus element={<Profile />} path="/profile/:userId" /> } />,
   },  
   {
+    path: '/notify/:notifyId',
+    element: <PrivateRoute element={<CheckingUserStatus element={<Notification />} path="/notify/:notifyId" /> } />,
+  },  
+  {
     path: '/editProfile',
     element: <PrivateRoute element={<CheckingUserStatus element={<ProfileEditPage />} path="/editProfile" /> } />,
   },
   {
     path: '/inbox',
-    element: <PrivateRoute element={<CheckingUserStatus element={<ChatPage />} path="/inbox" /> } />,
+    element: (
+      <ChatProvider>
+        <PrivateRoute
+          element={<CheckingUserStatus element={<ChatPage />} path="/inbox" />}
+        />
+      </ChatProvider>
+    ),
   },
+  
   {
     path: '/verifyemail/:emailToken',
     element: <EmailVerificationPage /> ,

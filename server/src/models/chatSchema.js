@@ -16,8 +16,11 @@ const chatSchema = new mongoose.Schema({
     content: {
         text:{
             type: String,  
-            required: true,
-        }
+        },
+        forwardedPost: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Post',
+        },
     },
     chatRoom: {
         type: mongoose.Schema.Types.ObjectId,

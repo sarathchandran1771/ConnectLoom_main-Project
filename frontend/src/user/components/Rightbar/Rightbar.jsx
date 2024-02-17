@@ -1,6 +1,9 @@
 //rightbar.js
-import React, { useState } from "react";
-import { usePostFollowRequestMutation } from "../../../Shared/redux/userSlices/userSlice";
+import React, { useState,useEffect } from "react";
+import {
+   usePostFollowRequestMutation,
+   useGetAllUserDataMutation 
+  } from "../../../Shared/redux/userSlices/userSlice";
 import "./Rightbar.css";
 import Post from "../post/post";
 import { toast } from "react-toastify";
@@ -11,51 +14,64 @@ import SmallCircularProgressVariants from "../LoadingComponent/spinner";
 
 export default function Rightbar() {
   const navigate = useNavigate();
+  const [postFollowRequestMutation] = usePostFollowRequestMutation();
   const { userInfo } = useSelector((state) => state.auth);
   const { profileData } = useSelector((state) => state.postData);
-  const [postFollowRequestMutation] = usePostFollowRequestMutation();
+  const [usersProfileData] = useGetAllUserDataMutation();
   const [followStatusMap, setFollowStatusMap] = useState({});
   const [loadingMap, setLoadingMap] = useState({});
-
-  const profileDataArray = Array.isArray(profileData) ? profileData : [];
+  const [allUsersData, setAllUsersData] = useState([]);
   const loggedInUserId = userInfo?._id;
-  const filteredData = profileDataArray.filter(
-    (item) => item?.user?._id !== loggedInUserId
-  );
-  const uniqueUserIds = new Set();
-  const uniqueFilteredData = filteredData.filter((item) => {
-    const userId = item?.user?._id;
 
-    if (!uniqueUserIds.has(userId)) {
-      uniqueUserIds.add(userId);
-      return true;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const  dataResponse  = await usersProfileData({ userId: loggedInUserId }).unwrap();  
+        setAllUsersData(dataResponse.users)
+      } catch (error) {
+        console.error('Error fetching Saved posts:', error);
+      }
     }
-    return false;
-  });
+    fetchData();
+  }, [loggedInUserId]);
+
+
+
+const filteredUsers = allUsersData.map(user => ({
+  isPendingFollower: user.pendingFollowers.includes(loggedInUserId)
+})); 
+
   const handleUsernameClick = (userId) => {
     navigate(`/profile/${userId}`);
   };
 
   const handleFollowRequest = async (userId) => {
     try {
-      setLoadingMap((prevMap) => ({
-        ...prevMap,
-        [userId]: true,
-      }));
+
+      const newFollowStatusMap = { ...followStatusMap };
+
+      filteredUsers.forEach((user, index) => {
+        const userId = allUsersData._id;
+
+        newFollowStatusMap[userId] = user.isPendingFollower ? "Requested" : "Follow";
+      });
+      
+      console.log("newFollowStatusMap", newFollowStatusMap);
+
+      setFollowStatusMap(newFollowStatusMap);
+
       // Perform the follow request mutation
       const response = await postFollowRequestMutation({
         fromUserId: loggedInUserId,
         toUserId: userId,
       });
       // Display a success toast
-      console.log("response", response);
       toast.success(response?.data?.message);
       setFollowStatusMap((prevMap) => ({
         ...prevMap,
-        [userId]:
-          response?.data?.message === "Friend request sent successfully"
-            ? "Requested"
-            : "Follow",
+        [userId]: filteredUsers.some(user => user.isPendingFollower)
+          ? "Requested"
+          : "Follow",
       }));
       setLoadingMap((prevMap) => ({
         ...prevMap,
@@ -77,16 +93,16 @@ export default function Rightbar() {
   return (
     <div className="mainRightbar">
       <div className="subMainRightBar">
-        <div style={{ flex: 2, padding: 10 }}>
+        <div style={{ flex: 2, padding: 15 }}>
           <Post item={profileData} />
         </div>
         <div style={{ flex: 2 }}>
-          <div style={{ marginRight: "20px" }}>
+          <div style={{ marginLeft: "20%" }}>
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginLeft: 20,
+                marginLeft: 10,
                 marginTop: 30,
                 cursor: "pointer",
               }}
@@ -123,22 +139,22 @@ export default function Rightbar() {
             </div>
             <div style={{ display: "flex" }}>
               <div>
-                <p style={{ color: "#A8A8A8", textAlign: "start" }}>
+                <p style={{ color: "#A8A8A8", textAlign: "start", marginLeft: 10 }}>
                   Suggested for you
                 </p>
 
-                {uniqueFilteredData.map((item) => (
+                {allUsersData.map((item) => (
                   <div
                     key={item._id}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       marginLeft: 20,
-                      marginTop: -20,
+                      marginTop: -5,
                     }}
                   >
                     <img
-                      src={item?.user?.profilePic || Default_profileIcon}
+                      src={item?.profilePic || Default_profileIcon}
                       alt=""
                       style={{
                         width: "40px",
@@ -149,42 +165,35 @@ export default function Rightbar() {
                     />
                     <div style={{ flexGrow: 1, marginLeft: 10 }}>
                       <Link
-                        to={`/profile/${item?.user?._id}`}
+                        to={`/profile/${item?._id}`}
                         style={{ textDecoration: "none", color: "inherit" }}
                       >
                         <p
                           style={{
                             textAlign: "start",
-                            marginBottom: 0,
+                            marginBottom: 15,
                             cursor: "pointer",
                           }}
-                          onClick={() => handleUsernameClick(item?.user?._id)}
+                          onClick={() => handleUsernameClick(item?._id)}
                         >
-                          {item?.user?.username}
+                          {item?.username}
                         </p>
                       </Link>
-                      <p
-                        style={{
-                          textAlign: "start",
-                          marginTop: 4,
-                          color: "#A8A8A8",
-                          marginBottom: 18,
-                        }}
-                      >
-                        Follow you
-                      </p>
                     </div>
 
                     <div
                       style={{ paddingLeft: 15, cursor: "pointer" }}
-                      onClick={() => handleFollowRequest(item?.user?._id)}
+                      onClick={() => handleFollowRequest(item?._id)}
                     >
-                      {loadingMap[item?.user?._id] ? (
+                      {loadingMap[item?._id] ? (
                         <SmallCircularProgressVariants />
                       ) : (
                         <p style={{ color: "#0095F6" }}>
-                          {followStatusMap[item?.user?._id] || "Follow"}
+                          {followStatusMap[item?._id] || "Follow"}
                         </p>
+                      //   <p style={{ color: "#0095F6" }}>
+                      //   {followStatusMap[item?._id]}
+                      // </p>
                       )}
                     </div>
                   </div>

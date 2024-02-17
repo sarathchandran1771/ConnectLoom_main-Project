@@ -1,5 +1,5 @@
 //user/pages/profile/profile.js
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import "./Profile.css";
 import "../../pages/Explore/Explore.css";
 import { useSelector } from "react-redux";
@@ -31,8 +31,10 @@ import "react-toastify/dist/ReactToastify.css";
 import {
   useArchivePostMutation,
   useDeletePostMutation,
+  useGetProfileDataMutation
 } from "../../../Shared/redux/userSlices/userSlice";
 import { useParams } from "react-router-dom";
+import LinearColor from "../../components/LoadingComponent/LinerBuffer"
 
 const StyledModal = {
   position: "absolute",
@@ -47,7 +49,7 @@ const StyledModal = {
 
 export default function ProfilePost() {
   const [activeStep, setActiveStep] = useState(0);
-  const { profileData } = useSelector((state) => state.postData);
+  const { profileData} = useSelector((state) => state.postData);
   const { userInfo } = useSelector((state) => state.auth);
   const [mappedData, setMappedData] = useState([]);
   const [open, setOpen] = React.useState(false);
@@ -63,11 +65,14 @@ export default function ProfilePost() {
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [deletePost, { isLoading }] = useDeletePostMutation();
   const [archivepost, { LoadingArchive }] = useArchivePostMutation();
+  const [userProfileData, {IsLoadingProfile}] = useGetProfileDataMutation();
   const { userId } = useParams();
+  const [activeImageIndex, setActiveImageIndex] = useState(0); 
 
   //workSpace
-  const privateAccount = userInfo.privatePublic;
-  const ownProfile = userInfo._id === userId;
+  const privateAccount = mappedData.privatePublic;
+  const ownProfile = mappedData._id === userId;
+  const LoadingProfile = IsLoadingProfile;
 
 
   const followersArray = mappedData[0]?.user?.followers;
@@ -75,17 +80,22 @@ export default function ProfilePost() {
   if (followersArray) {
     friendFollower = followersArray.includes(userInfo._id);
   }
-  
+      
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const  dataResponse  = await userProfileData({ userId: userId }).unwrap();  
+        setMappedData(dataResponse.postByUser)
+        } catch (error) {
+          console.error('Error fetching Saved posts:', error);
+        }
+      }
+      fetchData();
+    }, [userId]);
 
-  useEffect(() => {
-    const newMappedData = profileData.filter(
-      (item) => item?.user?._id === userId
-    );
-    setMappedData(newMappedData);
-  }, [userInfo, profileData]);
 
+ 
   //********************************* */
-  const [activeImageIndex, setActiveImageIndex] = useState(0);
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => (prevActiveStep + 1) % mappedData.length);
@@ -107,7 +117,7 @@ export default function ProfilePost() {
     setActiveImageIndex(index);
   };
 
-  const handleDelete = async (postId) => {
+  const handleDelete = async () => {
     try {
       const response = await deletePost({ postId: selectedPostId });
 
@@ -123,7 +133,7 @@ export default function ProfilePost() {
     }
   };
 
-  const handleArchivePost = async (postId) => {
+  const handleArchivePost = async () => {
     try {
       const response = await archivepost({ postId: selectedPostId });
 
@@ -140,10 +150,7 @@ export default function ProfilePost() {
   };
 
   //********************************* */
-  if (!profileData || profileData.length === 0) {
-    // Handle loading state or empty data here
-    return <div>Loading...</div>;
-  }
+
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
@@ -199,6 +206,10 @@ export default function ProfilePost() {
 
   //work Space
   return (
+    <>
+    {LoadingProfile ? (
+      <LinearColor />
+    ) : (
     <div className="profilePostContainer">
       {!ownProfile && privateAccount && !friendFollower ? (
         <div
@@ -654,5 +665,7 @@ export default function ProfilePost() {
         ))
       )}
     </div>
+    )}
+    </>
   );
 }

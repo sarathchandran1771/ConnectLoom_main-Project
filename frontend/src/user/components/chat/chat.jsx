@@ -24,21 +24,16 @@ const ChatMessage = () => {
   const [chatContent] = useAddMessageMutation();
   const [getChatContent] = useGetAllMessageMutation();
   const [createRoom] = useCreateChatRoomMutation();
-
-
-
+  const { profileData } = useSelector((state) => state.postData);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedEmoji, setSelectedEmoji] = useState(null);
   const [chatUsersData, setChatUsersData] = useState([]);
   const [socketConnected, setSocketConnected] = useState(false);
   const userId = userInfo?._id;
-  const [typedMessage, setTypedMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState();
-
-  const {user,selectedChat,setSelectedChat} = ChatState();
-
+  const {selectedChat,setSelectedChat} = ChatState();
 
   const generateChatRoomId = async (toUser) => {
     try {
@@ -47,7 +42,7 @@ const ChatMessage = () => {
         toUserId: toUser,
       });
       if (response.data && response.data.chatRoom) {
-        setSelectedChat(response.data.chatRoom);
+        setSelectedChat(response.data.chatRoom); 
       } else {
         console.error("Invalid response format");
       }
@@ -112,14 +107,6 @@ const handleSendMessage = async () => {
       } else {
         console.error("Failed to get sender information from the response");
       }
-      // const standardizedMessage = {
-      //   createdAt: response.messageData.createdAt,
-      //   fromSelf: response.messageData.sender,
-      //   message: response.messageData.content.text,
-      //   chatRoom: response.messageData.chatRoom,
-      //   profilepic: response.messageData.users.profilePic
-      // };
-
       setMessages([...messages,response.messageData])
       setSelectedEmoji(null);
     } catch (error) {
@@ -142,7 +129,6 @@ useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
       if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chatRoom._id) {
          // give notification
-        // console.log("after give notification:",newMessageReceived);
       } else {
         const standardizedMessage = {
           createdAt: newMessageReceived.messageData.createdAt,
@@ -162,11 +148,18 @@ useEffect(() => {
     generateChatRoomId(userId);
   };
 
-
   const markedId = messages.map((user) => user?.fromSelf === userId);
+
   const handleEmojiIconClick = () => {
     setShowEmojiPicker(!showEmojiPicker);
   };
+
+
+  //forward post && filter it from the store
+  const forwardedPostId = messages
+  .filter((user) => user && user.postMessage !== undefined && user.postMessage !== null)
+  .map((user) => user.postMessage);
+  const matchingPost = profileData.filter(profile => profile._id === forwardedPostId[0]);
 
 
   return (
@@ -339,7 +332,7 @@ useEffect(() => {
                               alt=""
                             />
                           )}
-                          <p
+                          {message.message?(<p
                             style={{
                               flex: 1,
                               textAlign:
@@ -361,6 +354,23 @@ useEffect(() => {
                           >
                             {message?.message}
                           </p>
+                          ):(
+                          <img style={{
+                              flex: 1,
+                              textAlign:
+                                message?.fromSelf === userId ? "right" : "left",
+                              maxWidth: "35%",
+                              border: "none",
+                              borderRadius: 12,
+                              paddingRight: 6,
+                              paddingLeft: 8,
+                              paddingTop: 8,
+                              paddingBottom: 8,
+                              fontSize: 16,
+                            }}
+                               src={matchingPost[0]?.image[0]} alt=""
+                          />)}
+
                         </div>
                       ))}
                   </div>
@@ -392,7 +402,7 @@ useEffect(() => {
                         width: "100%",
                       }}
                     >
-                      <div
+                      {/* <div
                         style={{
                           position: "relative",
                           left: "5px",
@@ -405,11 +415,12 @@ useEffect(() => {
                           color="warning"
                           onClick={handleEmojiIconClick}
                         />
-                      </div>
+                      </div> */}
 
                       <input
                         type="text"
                         placeholder=" message..."
+                        id="chatInput"
                         style={{
                           boxSizing: "border-box",
                           width: "100%",
@@ -417,9 +428,8 @@ useEffect(() => {
                           padding: 5,
                           borderRadius: 8,
                           marginLeft: 15,
-                          outline: "none",
+                          outline: "none", 
                         }}
-                        id="chatInput"
                         value={
                           selectedEmoji
                             ? `${newMessage} ${selectedEmoji.emoji}`

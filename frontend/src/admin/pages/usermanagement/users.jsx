@@ -28,9 +28,22 @@ const Team = () => {
   const [users, setUsers] = useState([]);
   const colors = tokens(theme.palette.mode);
 
+  const adminToken = localStorage.getItem('adminToken');
+
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:5000/admin/userData");
+    // Fetch adminToken from localStorage
+    if (!adminToken) {
+      console.error("adminToken not found in localStorage");
+      return;
+    }
+      const response = await fetch("http://localhost:5000/admin/userData", {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+          // Add any other headers if needed
+        },
+      });
       const data = await response.json();
       const usersWithIdAndStrings = data.user.map((user, index) => ({
         ...user,
@@ -48,11 +61,16 @@ const Team = () => {
 
   const handleAccessClick = async (userId) => {
     try {
+      if (!adminToken) {
+        console.error("adminToken not found in localStorage");
+        return;
+      }
       const response = await fetch(
         "http://localhost:5000/admin/updateUserStatus",
         {
           method: "PATCH",
           headers: {
+            'Authorization': `Bearer ${adminToken}`,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ userId }),

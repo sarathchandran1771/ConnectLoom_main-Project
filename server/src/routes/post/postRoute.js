@@ -14,7 +14,7 @@ const cloudinaryMiddleware = require("../../middleware/cloudinaryMiddleware")
 
 postRouter.post("/post", postController.postNewDataPosting);
 
-postRouter.get("/all-posts", postController.getAllPosts); 
+postRouter.get("/all-posts", postController.getAllPosts);
 
 postRouter.delete('/deletePosts/:postId',blockUserMiddleware, postController.deletePost);
 
@@ -28,11 +28,15 @@ postRouter.get("/get-Comment",commentController.getCommentsOnPost);
 
 postRouter.post("/replay-Comment",blockUserMiddleware, commentController.replayForComment);
 
+postRouter.post("/report-Comment",blockUserMiddleware, commentController.reportOnComment);
+
+postRouter.post("/delete-Comment",blockUserMiddleware, commentController.deleteComment);
+
 //archive post 
 
-postRouter.get("/getArchivePost/:userID",blockUserMiddleware, postController.getDataPostedOnprofile);
+postRouter.get("/getArchivePost/:userId",blockUserMiddleware, postController.getArchivePostOnprofile);
 
-postRouter.patch("/archivePost/:postId",blockUserMiddleware, postController.archivePost);
+postRouter.patch("/archivePost/:postId", postController.archivePost);
 
 //save post
 
@@ -40,6 +44,8 @@ postRouter.post("/savePost", postSaveController.savePost);
 
 postRouter.get("/getSavedPost", postSaveController. getAllSavedPosts);
 
+
+postRouter.get("/getLikesOnPost", PostLikeController. getAllLikedPost);
 
 //Like post
 

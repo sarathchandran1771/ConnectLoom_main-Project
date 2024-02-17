@@ -29,10 +29,21 @@ const Team = () => {
   const theme = useTheme();
   const [posts, setPosts] = useState([]);
   const colors = tokens(theme.palette.mode);
-console.log("Team posts",posts)
+  const adminToken = localStorage.getItem('adminToken');
+
+
   const fetchData = async () => {
     try {
-      const response = await fetch("http://localhost:5000/admin/reportedPost");
+      if (!adminToken) {
+        console.error("adminToken not found in localStorage");
+        return;
+      }
+      const response = await fetch("http://localhost:5000/admin/reportedPost",{
+        headers: {
+          'Authorization': `Bearer ${adminToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
       const data = await response.json();
       const postsWithId = data.reportedPosts.map((post, index) => ({
         ...post,
@@ -53,6 +64,7 @@ console.log("Team posts",posts)
       const response = await fetch("http://localhost:5000/admin/updatePostStatus", {
         method: "PATCH",
         headers: {
+          'Authorization': `Bearer ${adminToken}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ postId }),

@@ -29,10 +29,7 @@ export default function SavedPost() {
   const [savedPosts, setSavedPosts] = React.useState([]);
   const [open, setOpen] = React.useState(false);
   const { userId } = useParams();
-
   const isArchiveOperation = React.useRef(false)
-  console.log("selectedPostId",selectedPostId)
-
 
   const handleSavePost = async () => {
     try {
@@ -90,12 +87,13 @@ export default function SavedPost() {
 
 
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         width: '100%',
         height: 850,
         overflowY: 'auto',
         padding: 0,
+        scrollbarWidth: 'thin',
         '&::-webkit-scrollbar': {
           width: '0.4em',
         },
@@ -104,59 +102,85 @@ export default function SavedPost() {
         },
       }}
     >
-      <ImageList variant="masonry" cols={5} gap={10}>
+      <div style={{ columnCount: 5, columnGap: 10 }}>
         {savedPosts.map((savedPost, index) => (
-          <ImageListItem
+          <div
             key={index}
-            sx={{
+            style={{
               position: 'relative',
               overflow: 'hidden',
               '&:hover .coveredLikesAndComments': {
                 visibility: 'visible',
               },
+              width: '100%',
+              marginBottom: '10px', 
+              boxSizing: 'border-box', 
             }}
           >
-          <img
-            src={MoreOptions}
-            onClick={() => handleOpen(savedPost?.post._id)}
-            style={{ height: 35, width: 35, cursor: 'pointer', zIndex: 1000, position: 'absolute', top: 0, left: 0 }}
-            alt=""
-          />
+            <img
+              src={MoreOptions}
+              onClick={() => handleOpen(savedPost?.post._id)}
+              style={{
+                height: 35,
+                width: 35,
+                cursor: 'pointer',
+                zIndex: 1000,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+              }}
+              alt=""
+            />
             {savedPost.post.image.map((image, imageIndex) => (
-              
               <img
-                key={imageIndex}
-                srcSet={`${image}?w=248&fit=crop&auto=format&dpr=2 2x`}
-                src={`${image}?w=248&fit=crop&auto=format`}
-                alt=''
-                loading="lazy"
-              />
+              src={`${image}?w=248&h=250&fit=crop&auto=format&dpr=2`}
+              alt=""
+              loading="lazy"
+              style={{
+                width: '100%',
+                height: '250px',
+                objectFit: 'cover',
+              }}
+            />
             ))}
-
             <div className="coveredLikesAndComments">
               Likes: {savedPost.post.likes.length} Comments: {savedPost.post.comments.length}
             </div>
-          </ImageListItem>
+          </div>
         ))}
-      </ImageList>
-
-
-       <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
+      </div>
+  
+      <div
+        style={{
+          display: open ? 'block' : 'none',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        }}
+        onClick={handleClose}
       >
-        <Box sx={modalStyle}>
-          <ul style={{ listStyle: 'none', textAlign: 'center' }}>
-            <li className="MoreText">
-              <Typography variant="3" component="h2" onClick={handleSavePost}>
-                UnSave
-              </Typography>
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: '#fff',
+            padding: '20px',
+            borderRadius: '5px',
+          }}
+        >
+          <ul style={{ listStyle: 'none', textAlign: 'center', width:250 }}>
+            <li className="MoreText" onClick={handleSavePost}>
+              UnSave
             </li>
           </ul>
-        </Box>
-      </Modal>
-    </Box>
+        </div>
+      </div>
+    </div>
   );
+  
 }

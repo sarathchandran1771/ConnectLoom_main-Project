@@ -1,0 +1,14 @@
+.homeSubContainer{
+    display: flex;
+}
+
+.homeSidebar{
+    flex: 0.3;
+    color: aliceblue;
+    background-color: black;
+}
+
+
+.errorPageRightbar{
+    flex: 3;
+}

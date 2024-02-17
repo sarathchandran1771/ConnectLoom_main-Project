@@ -1,10 +1,10 @@
-version: '3.8'
+version: "3"
 services:
 
-# MongoDB service
+  # MongoDB service
   mongo:
     image: mongo:latest
-    container_name: mongo-db
+    container_name: mongo
     ports:
       - "27017:27017"
     environment:
@@ -12,35 +12,45 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: connectLoom
     networks:
       - app-network
-# API service
-  server:
-    image: node:latest
+
+
+  # API (backend) service
+  api:
+    image: sarathchandran2000/connectloom-backendserver:latest
+    container_name: server
     ports:
-      - '8080:80'
-    volumes:
-      - ./server:/root/server
-    env_file:
-      - ./deploy/server.env
-    entrypoint: sh /root/server/start_server.sh
+      - "5000:5000"
+    depends_on:
+      - mongo
     networks:
       - app-network
+
+ 
   # Frontend service
   frontend:
-    build:
-      context: ./deploy
-      dockerfile: Dockerfile
+    image: sarathchandran2000/connectloom-frontend-ui:latest
+    container_name: frontend
+    stdin_open: true
     ports:
-      - '80:80'
-      - '443:443'
-    env_file:
-      - ./deploy/frontend.env
-    volumes:
-      - ./frontend/build:/var/www/html
-      - ./deploy/default.conf:/etc/nginx/sites-available/default
+      - "3000:3000"
     depends_on:
-      - server
+      - mongo
     networks:
       - app-network
+
+  # NGINX service
+  nginx:
+    image: sarathchandran2000/connectloom-nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+    networks:
+      - app-network
+
 networks:
   app-network:
     driver: bridge
+
+  

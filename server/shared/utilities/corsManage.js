@@ -1,4 +1,5 @@
 //../../../shared/utilities/corsManage
+
 const express = require("express");
 const cors = require('cors');
 const corsManage = express.Router();
@@ -16,10 +17,14 @@ module.exports = corsManage;
 
 
 
-// Allow only specific origins
-//  const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(',') : [];
+// const express = require("express");
+// const cors = require('cors');
+// const corsManage = express.Router();
 
-// Move the cors middleware to be applied 
+// // Allow only specific origins
+// const allowedOrigins = ['http://localhost:3000', 'https://localhost:3000'];
+
+// // Move the cors middleware to be applied 
 // corsManage.use(cors({
 //     credentials: true,
 //     origin: function (origin, callback) {
@@ -33,3 +38,4 @@ module.exports = corsManage;
 //     methods: 'GET, POST, PATCH, PUT, DELETE, OPTIONS'
 // }));
 
+// module.exports = corsManage;

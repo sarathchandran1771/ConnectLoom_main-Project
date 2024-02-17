@@ -16,7 +16,7 @@ const replySchema = new mongoose.Schema({
     }],
     parentComment: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comment',
+        ref: 'comments',
         required: true,
     },
 }, { timestamps: true });

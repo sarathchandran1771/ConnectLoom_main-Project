@@ -1,0 +1,23 @@
+.mainNotificationRightbar {
+    background-color:black;
+    height: 100vh;
+    overflow: auto;
+    display: flex;
+    width: 100%;
+    position:fixed;
+
+}
+
+p {
+    color: white;
+}
+
+.subMainNotificationRightBar {
+    width: 100%;
+    overflow: auto;
+
+}
+
+.subNotificationRightBar {
+    width: 100%;
+}

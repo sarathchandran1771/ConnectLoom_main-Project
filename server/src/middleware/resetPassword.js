@@ -20,7 +20,7 @@ const sendForgetPasswordEmail = async (user) => {
         from: process.env.USER,
         to: emailId,
         subject: "Reset your password",
-        text: `http://frontend-ui:3000/resetPassword/${user._id}/${token}`,
+        text: `http://localhost:3000/resetPassword/${user._id}/${token}`,
         html: `
         <!doctype html>
         <html lang="en-US">

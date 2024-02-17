@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import "./Profile.css";
 import Sidebar from "../../components/Sidebar/Sidebar";
 import SettingIcon from "../../Icons/Settingslogo.png";
-import MoreOptions from "../../Icons/MoreOptions.png";
 import "../../pages/Explore/Explore.css";
 import { useSelector } from "react-redux";
 import { Link} from "react-router-dom";
@@ -14,29 +13,35 @@ import VerifiedOutlinedIcon from "@mui/icons-material/VerifiedOutlined";
 import FollowButton from "../../components/FollowRequest/followRequest";
 import AcceptButton from "../../components/FollowRequest/acceptButton";
 import ProfileImage from './profileImage/profileImage'
+import FollowerList from "../../components/FollowRequest/followerList";
+import FollowingList from "../../components/FollowRequest/followingList";
+import {
+  useGetProfileDataMutation
+} from "../../../Shared/redux/userSlices/userSlice";
+import ReportOnUser from '../../components/reportUser/reportUser'
 
 export default function Profile() {
-  const { profileData } = useSelector((state) => state.postData);
-  const [mappedData, setMappedData] = useState([]);
+  const [userProfileData] = useGetProfileDataMutation();
   const [profileMappedData, setProfileMappedData] = useState([]);
+  const [mappedData, setMappedData] = useState([]);
   const { userInfo } = useSelector((state) => state.auth);
-  const [imageLoading, setImageLoading] = useState(false);
   const { userId } = useParams();
-  useEffect(() => {
-    const newMappedData =
-      profileData.find((item) => item?.user?._id === userId) || {};
-    setMappedData(newMappedData);
-  }, [userInfo, profileData]);
-
 
   useEffect(() => {
-    const newMappedData = profileData.filter(
-      (item) => item?.user?._id === userId
-    );
-    setProfileMappedData(newMappedData);
-  }, [userInfo, profileData]);
+    const fetchData = async () => {
+      try {
+        const  dataResponse  = await userProfileData({ userId: userId }).unwrap();  
+      setMappedData(dataResponse.user)
+      setProfileMappedData(dataResponse.postByUser)
+      } catch (error) {
+        console.error('Error fetching Saved posts:', error);
+      }
+    }
+    fetchData();
+  }, [userId]);
+
   const totalPostCount = profileMappedData ? profileMappedData?.length : 0;
-
+  
   return (
     <div>
       <div className="homeSubContainer">
@@ -47,12 +52,8 @@ export default function Profile() {
         <div className="profileRightbar">
           <div className="subProfileRightbar">
             <div style={{ width: "70%", display: "flex" }}>
-              {imageLoading ? (
-                <div>Loading Spinner...</div>
-              ) : (
 
-                <ProfileImage userData={mappedData.user} />
-              )}
+                <ProfileImage/>
               <div style={{ marginLeft: "25px", textAlign: "start" }}>
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <div style={{ display: "flex" }}>
@@ -63,9 +64,9 @@ export default function Profile() {
                         color: "white",
                       }}
                     >
-                      {mappedData?.user?.username}
+                      {mappedData?.username}
                     </p>
-                    {mappedData?.user?.isPremium === true ? (
+                    {mappedData?.isPremium === true ? (
                       <VerifiedOutlinedIcon
                         color="secondary"
                         style={{ height: 35, width: 35, marginTop: 15 }}
@@ -73,7 +74,7 @@ export default function Profile() {
                     ) : null}
                   </div>
                   <div style={{ marginLeft: "20px" }}>
-                    {userInfo?._id === mappedData?.user?._id && (
+                    {userInfo?._id === mappedData?._id && (
                       <Link to={`/editProfile`}>
                         <button
                           style={{
@@ -91,8 +92,8 @@ export default function Profile() {
                       </Link>
                     )}
 
-                    {userInfo?._id !== mappedData?.user?._id && (
-                      <div style={{ display: "flex", paddingLeft: 20 }}>
+                    {userInfo?._id !== mappedData?._id && (
+                      <div style={{ display: "flex", paddingLeft: 20 }}> 
                         <FollowButton />
                         <div
                           style={{
@@ -101,16 +102,12 @@ export default function Profile() {
                             paddingTop: "6px",
                           }}
                         >
-                          <img
-                            style={{ height: 40, width: 40 }}
-                            src={MoreOptions}
-                            alt=""
-                          />
+                          <ReportOnUser userId={userId} />
                         </div>
                       </div>
                     )}
 
-                    {userInfo?._id === mappedData?.user?._id && (
+                    {userInfo?._id === mappedData?._id && (
                       <img
                         src={SettingIcon}
                         style={{ marginLeft: "20px", cursor: "pointer" }}
@@ -135,12 +132,8 @@ export default function Profile() {
                   >
                     {totalPostCount} posts 
                   </p>
-                  <p style={{ marginLeft: "20px" }}>
-                    {mappedData?.user?.account?.followersCount} followers 
-                  </p>
-                  <p style={{ marginLeft: "20px" }}>
-                    {mappedData?.user?.account?.followingCount} following
-                  </p>
+                  <FollowerList mappedData={mappedData} />
+                  <FollowingList mappedData={mappedData} />
                 </div>
 
                 <div
@@ -156,7 +149,7 @@ export default function Profile() {
                       fontWeight: 600,
                     }}
                   >
-                    {mappedData?.user?.Bio}
+                    {mappedData?.Bio}
                   </p>
                 </div>
                 <AcceptButton />

@@ -17,8 +17,7 @@ const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
-  const [getPremiumUser, { data, error, isLoading }] =
-    useGetPremiumUserMutation();
+  const [getPremiumUser, { data, error, isLoading }] = useGetPremiumUserMutation();
   const [chartData, setChartData] = useState([]);
   const [recentTransaction, setRecentTransaction] = useState([]);
   const [getAllUsers, { userData }] = useGetAllUsersMutation();
@@ -50,6 +49,7 @@ const Dashboard = () => {
 
     fetchData();
   }, [getPremiumUser, getAllUsers]);
+  
   const validChartData = isNaN(chartData) ? 0 : chartData;
   const validSetLimit = isNaN(setLimit) ? 1 : setLimit;
   const percentage = validChartData / validSetLimit;

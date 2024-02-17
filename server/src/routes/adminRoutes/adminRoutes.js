@@ -7,13 +7,15 @@ const upload = multer();
 const S3Middleware = require('../../middleware/S3-UploadMiddleware')
 const adminControllers = require('../../controllers/admin/adminControllers')
 
+const protect = require('../../middleware/adminAuthMiddleWare')
+
 adminRouter.post('/adminLogin', adminControllers.getAdminLogin);
 
 adminRouter.post("/logout", adminControllers.AdminLogout);
 
-adminRouter.get("/userData", adminControllers.getAllUsers);
+adminRouter.get("/userData", protect, adminControllers.getAllUsers);
 
-adminRouter.patch("/updateUserStatus", adminControllers.updateUserStatus);
+adminRouter.patch("/updateUserStatus",protect, adminControllers.updateUserStatus);
 
 adminRouter.get("/reportedPost", adminControllers.getReportedPost);
 
@@ -33,7 +35,7 @@ adminRouter.delete('/Delete-ad/:postId', adminControllers.deleteAdPost);
 adminRouter.patch("/edit-AdPost", S3Middleware.upload.single('file'), adminControllers.editAdPost);
 
 
-
+  
 module.exports = adminRouter;
 
 

@@ -14,7 +14,6 @@ const path = require('path')
 const SECRET_KEY = process.env.STRIPE_SECRET_KEY
 const stripe = require("stripe")(SECRET_KEY)
 dotenv.config();
-const bodyParser = require("body-parser");
 
 // Connect to MongoDB
 connectDB();
@@ -23,7 +22,6 @@ const userRouter = require("./src/routes/user/userRoute");
 const postRouter = require("./src/routes/post/postRoute");
 const adminRouter = require("./src/routes/adminRoutes/adminRoutes");
 const passportSetup = require('./shared/utilities/passport')
-
 
 
 const rawMiddleware = (req, res, next) => {
@@ -49,23 +47,14 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session()); 
 app.use('/public', express.static(path.join(__dirname, 'public')));
-
-app.use(express.static(path.join(__dirname, '../frontend', 'build')));
-
-
-
+ 
 app.use("/", userRouter);
 app.use("/post", postRouter);
 app.use("/admin", adminRouter);
 
-app.get('/*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend', 'build', 'index.html')); 
-});
-
 // Move the catch-all middleware to the end
 app.use(notFound);
 app.use(errorHandler);
-
 
 const server = app.listen(port, () =>console.log("Server started listening on port", port));
 
@@ -77,28 +66,22 @@ const io = require("socket.io")(server,{
 }); 
 
 io.on("connection",(socket)=>{
-  console.log("conencted to socket.io"); 
-
-
   socket.on('setup',(userData)=>{
     socket.join(userData.id);
     socket.emit("connected")
   })
   
-
   socket.on('join chat',(room)=>{
     socket.join(room);
-    socket.emit("connected")
-    console.log("user Joined room", room);
+    console.log("room",room)
+    socket.emit("connected");
   })
 
   socket.on('new message', (newMessageRecieved) => {
-    console.log("user newMessageRecieved", newMessageRecieved);
   var chat = newMessageRecieved.chatRoom
     // Check if 'content' property exists in 'newMessageRecieved'
     if (!chat.userIds)return console.log("chat users not defined") 
-  
-      // Assuming 'sender' property is the user ID
+      //'sender' property is the user ID
       const senderUserId = newMessageRecieved.messageData.sender;      
     // Emit the message to all users in the room except the sender
     chat.userIds.forEach((user) => {

@@ -1,4 +1,4 @@
-// server/src/controllers/post/postControllers.js
+// server/src/controllers/post/commentControllers.js
 const express = require("express");
 const postRouter = express.Router();
 const corsManage = require("../../../shared/utilities/corsManage");
@@ -6,6 +6,7 @@ const Post = require("../../models/postSchema");
 const User = require("../../models/userSchema");
 const Comment = require("../../models/commentSchema/commentSchema");
 const ReplyComment = require("../../models/commentSchema/repliesSchema");
+const ReportedComments = require("../../models/reportSchema/reportOnCommentSchema");
 const dotenv = require("dotenv");
 const mongoose = require('mongoose');
 
@@ -43,25 +44,25 @@ const commentOnPost = async (req, res) => {
 };
  
 const getCommentsOnPost = async (req, res) => {
-    const { postId, userId } = req.query;
-    console.log("req.query from comments",req.query)
-
-  if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
-    return res.status(400).json({ message: "Invalid postId" });
-  }
-    try {
-        const comments = await Comment.find({ post: postId, user: userId }).populate('user', '-password');;
-
-        if (!comments) {
-            console.log("Comment does not exist");
-            return res.status(404).json({ message: "Comment does not exist" });
-        }  
-        return res.status(200).json({ message: "Comment retrieved successfully", comments });
-    } catch (error) {
-        console.error("Error retrieving comment:", error); 
-        return res.status(500).json({ error: "Internal Server Error" }); 
+    const { postId } = req.query;
+    if (!postId || !mongoose.Types.ObjectId.isValid(postId)) {
+      return res.status(400).json({ message: "Invalid postId" });
     }
-};
+    try {
+      const comments = await Comment.find({ post: postId }).populate('user').select('-password');
+  
+      if (!comments || comments.length === 0) {
+        console.log("Comments do not exist");
+        return res.status(404).json({ message: "Comments do not exist" });
+      }
+       // Now you have the comments and an array of corresponding user data
+       return res.status(200).json({ message: "Comments retrieved successfully", comments });
+    } catch (error) {
+      console.error("Error retrieving comments:", error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  };
+  
 
 const replayForComment = async (req, res) => { 
     const { commentId, userId, commentContent } = req.body;
@@ -104,8 +105,75 @@ const replayForComment = async (req, res) => {
     }
 };
 
+const reportOnComment = async (req, res) => {
+    const { parentComment, userId, reportReason } = req.body;
+    try {
+        const user = await User.findOne({ _id: userId, isVerified: true });
+        if (!user) {
+            console.error("User does not exist or is not verified");
+            return res.status(404).json({ message: "User does not exist or is not verified" });
+        }
+        //const commentObjectId = ObjectId(commentId);
+        const comment = await Comment.findById(parentComment);
+        if (!comment) {
+            console.error("Comment does not exist");
+            return res.status(404).json({ message: "Comment does not exist" });
+        }
+        
+        // Check if the user has already reported the comment
+        const existingReport = await ReportedComments.findOne({
+            'user': userId,
+            'parentComment': parentComment,
+        });
+
+        if (existingReport) {
+            console.log("Already reported this comment")
+            return res.status(200).json({ message: "Already reported this comment" });
+        }
+
+        const reportedComment = await ReportedComments.create({
+                user: userId,
+                reportReason: reportReason,
+                parentComment: parentComment,
+        });
+        return res.status(200).json({ message: "Comment reported successfully"});
+    } catch (error) {
+        console.error("Error reporting comment:", error);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+const deleteComment = async (req, res) => {
+    try {
+      const {commentId,userId} = req.body;
+      console.log("comment", req.body);
+
+      const user = await User.findOne({ _id: userId, isVerified: true });
+      if (!user) {
+          console.error("User does not exist or is not verified");
+          return res.status(404).json({ message: "User does not exist or is not verified" });
+      }
+
+      const comment = await Comment.findById(commentId);
+      console.log("comment", comment);
+  
+      if (!comment) {
+        return res.status(404).json({ message: "deletePost not found" });
+      }
+      // Delete the post
+      await Comment.deleteOne({ _id: comment });
+      res.status(200).json({ message: "Post deleted successfully" });
+    } catch (error) {
+      console.error("Internal_delete_error", error);
+      res.status(500).json({ message: "Internal Server Error", error });
+    }
+  };
+  
+
 module.exports = { 
     commentOnPost, 
     replayForComment,
-    getCommentsOnPost
+    getCommentsOnPost,
+    reportOnComment,
+    deleteComment
  };

@@ -48,6 +48,8 @@ const AdvertisementEditOption = ({ postId: propPostId }) => {
     getUploadedAd();
   }, []);
 
+
+
   useEffect(() => {
     // Find the selected post based on the ID
     const selectedPost = adPostResponse.find(

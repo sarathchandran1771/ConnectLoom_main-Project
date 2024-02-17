@@ -92,8 +92,7 @@ const getAdminLogin = async (req, res) => {
       httpOnly: true,
       expires: new Date(0),
     });
-    console.log("Admin Logged out successfully");
-    res.status(200).json({ message: "Logged out successfully" });
+    res.status(200).json({ message: "Logged out" });
   };
 
 
@@ -170,7 +169,7 @@ const getAdminLogin = async (req, res) => {
           console.log("Post status updated successfully");    
           res.status(200).json({ post });
         } else {
-          console.log("Post not found");
+          console.log("reported Post not found");
           res.status(200).json({ message: "No reported posts available" });
         }
       } catch (error) {

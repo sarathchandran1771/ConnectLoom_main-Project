@@ -45,7 +45,7 @@ const postSchema = new mongoose.Schema({
         },
         isLiked: {
             type: Boolean,
-            default: true, // Set default to true when creating the like
+            default: true,
         },
     }],
 }, { timestamps: true });
