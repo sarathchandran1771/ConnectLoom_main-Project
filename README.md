@@ -107,36 +107,36 @@ Provides an overview of user and post statistics.
 
 **Frontend**
 
--React
--Redux
--RTKQ (Redux Toolkit Query)
--Material UI
+- React
+- Redux
+- RTKQ (Redux Toolkit Query)
+- Material UI
 
 **Backend**
 
--Node.js
--Express.js
+- Node.js
+- Express.js
 
 **Database**
 
--MongoDB
+- MongoDB
 
 **External Services**
 
--Socket io (real-time chat)
--Nodemailer (Email services)
--Email validator (Email verification)
--Bcrypt (Password hashing)
--Facebook OAuth
--Google OAuth
--Cloudinary (Image storage)
--S3 Bucket (Profile images)
+- Socket io (real-time chat)
+- Nodemailer (Email services)
+- Email validator (Email verification)
+- Bcrypt (Password hashing)
+- Facebook OAuth
+- Google OAuth
+- Cloudinary (Image storage)
+- S3 Bucket (Profile images)
 
 **Deployment**
 
--NGINX (Web server)
--AWS (Cloud services)
--EC2 instances
+- NGINX (Web server)
+- AWS (Cloud services)
+- EC2 instances
 
 ## Installation
 
