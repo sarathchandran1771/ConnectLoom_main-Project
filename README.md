@@ -7,77 +7,77 @@ ConnectLoom is a social media application built using the MERN (MongoDB, Express
 
 ### User Side Features
 
-###User UI :
+- User UI :
 
 A clean and intuitive user interface built with React and Material UI.
 
--User Registration
+- User Registration
 Allows users to register using a valid email address.
 
--Login
+- Login
 Users can securely login using their registered credentials.
 
 -JWT Token Authentication
 Implements JSON Web Token (JWT) authentication for secure user sessions.
 
--Mail Verification
+- Mail Verification
 Sends a verification email upon registration to ensure the authenticity of user accounts.
 
--Add Posts
+- Add Posts
 Enables users to create and share posts with text and images.
 
--Delete Post
+- Delete Post
 Allows users to delete their own posts.
 
--Profile
+- Profile
 Displays user profiles with relevant information.
 
--Forget & Reset Password
+- Forget & Reset Password
 Provides functionality for users to reset their passwords in case of forgetfulness.
 
--Report Post/User
+- Report Post/User
 Users can report posts or other users with specific reasons for moderation.
 
--Profile Image (S3 Bucket)
+- Profile Image (S3 Bucket)
 Stores user profile images securely in an S3 bucket.
 
--Private/Public Account
+- Private/Public Account
 Users can choose to make their accounts private or public.
 
--Send Friend Request
+- Send Friend Request
 Initiates friend requests between users.
 
--Accept Friend Request
+- Accept Friend Request
 Allows users to accept friend requests.
 
--Verified Account (Block Ads)
+- Verified Account (Block Ads)
 Verified accounts enjoy an ad-free experience.
 
--Search Friend
+- Search Friend
 Users can search for friends on the platform.
 
--Saved Posts
+- Saved Posts
 Users can bookmark and view saved posts.
 
--Archive Post
+- Archive Post
 Option to archive posts for future reference.
 
--Explore
+- Explore
 Discover trending posts and users.
 
--Chat
+- Chat
 Real-time messaging between friends with Socket io.
 
--Notifications
+- Notifications
 Users receive notifications for friend requests, messages, etc.
 
--Report on Comments
+- Report on Comments
 Allows reporting of comments with specific reasons.
 
--Delete Comments
+- Delete Comments
 Users can delete their comments.
 
--Forward Posts
+- Forward Posts
 Share posts with other users.
 
 ### Admin Side:
